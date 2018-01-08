@@ -110,6 +110,117 @@ public class FirstSample{
 > 如果虚拟机始终将相同的字符串共享，就可以用 == 检测是否相等。但实际上只有字符串**常量**是共享的，而 + 或 substring 等操作产生的结果并不是共享的。因此，千万不要使用 == 运算符测试字符串的相等行。
 - 5. 空串 与 Null 串
 > 空串""是长度为0 的字符串。可以用以下代码
+```
+  if(str.length() == 0)
+  或
+  if(str.equals(""))
+```
+> 空串是一个Java对象，有自己的串长度（0）和内容（空）。不过，String变量还可以存放一个特殊的值，名为null。检查一个字符串是否是null
+```
+  if(str == null)
+```
+> 有时要检查一个字符串既不是null 也不为空串，需要以下条件:  首先要检查 str 不为null。
+```
+  if(str != null && str.length() != 0)
+```
+- 6. 代码点与代码单元 ？ 没用过
+- 7. 字符串API
+> char charAt (int index); int length(); int indexOf(String str); int lastIndexOf(String str); boolean startsWith(String prefix); boolean endsWith(String suffix); boolean equals(Object other); String trim(); String substring(int beginIndex);String toLowerCase();String replace(CharSequence oldString, CharSequence newString);
+- 8. 阅读联机 API 文档
+> API文档是JDK 的一部分，它是HTML格式的。让浏览器指向安装JDK 的 docs/api/index.html 子目录
+- 9. 构建字符串
+> 有些时候，需要由较短的字符串构建字符串，例如，按键或来自文件中的单词。采用字符串连接的方式达到此目的效率比较低。每次连接字符串，都会构建一个新的String对象，**既耗时，又浪费空间。**使用StingBuilder 类就可以避免这个问题的发生。操作步骤如下：
+```
+  StringBuilder builder = new StringBuilder();  // 1. 构建一个空的字符串构建器。
+  // 当每次需要添加一部分内容时，就调用 append 方法
+  builder.append(ch);  // appends a single character
+  builder.append(str); // appends a string
+  // 当需要构建字符串时就调用 toString 方法，将可以得到一个String对象，其中包含了构建器中的字符序列
+  String completedString = builder.toString();
+```
+> 在JDK 5.0中引入 StringBuilder 类。这个类的前身是 StringBuffer，其效率稍有些低，但允许采用**多线程**的方式执行添加或删除字符的操作。如果所有字符串在一个单线程中编辑（通常都是这样），则应该用 StringBuilder 替代它。这两个类的 API 是相同的。
+> 
+> StringBuilder(); int length(); StringBuilder append(String str); StringBuilder append(char c); void setCharAt(int i, char c); StringBuilder insert(int offset, String str); StringBuilder insert(int offset, char c); StringBuilder delete(int startIndex, int endIndex); String toString()
+### 输入输出
+- 1. 读取输入 [inputTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/InputTest/InputTest.java)
+> Scanner 类定义在 java.util包中。当使用的类不是定义在基本 java.lang 包中时，一定要使用 import 指示字将相应的包加载进来。
+> 
+> Scanner(InputStream in); String nextLine(); String next(); int nextInt(); double nextDouble(); boolean hasNext();...
+- 2. 格式化输出
+> 类似C 语言中的 printf()
+- 3. 文件输入与输出
+> 要想对文件进行读取，需要一个用File 对象构造一个Scanner 对象，如
+```
+  Scanner in = new Scanner(Paths.get("myfile.txt"));
+```
+> 如果文件名中包含反斜杠符号，就要记住**在每个反斜杠之前再加一个额外的反斜杠**
+```
+  Scanner in = new Scanner(Paths.get("c:\\mydirectory\\myfile.txt"));
+```
+> 要想写入文件，需要构造一个PrintWriter 对象。在构造器中，只需要提供文件名：
+```
+  PrintWriter out = new PrintWriter("c:\\mydirectory\\myfile.txt");
+```
+### 控制流程
+- 与任何程序设计语言一样，Java 使用条件语句和循环结构确定控制流程。
+- 1. 块（block）作用域 
+- 2. 条件语句
+> if (condition1) statement1; else if(condition2) statement2; else statement3
+- 3. 循环
+> while (condition) statement 、 do statement while (condition) 、 
+> 
+> [Retirement.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/Retirement/Retirement.java)
+> [Retirement2.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/Retirement2/Retirement2.java)
+- 4. 确定循环
+> for循环语句是支持迭代的一种通用结构，利用每次迭代之后更新的计数器或类似的变量来控制迭代次数。下面的程序将数字 1 ~ 10 输出到屏幕上。
+```
+  for (int i=1; i <= 10; i++)
+    System.out.println(i);
+```
+> for语句的第 1 部分通常用于对计数器初始化；第 2 部分给出每次新一轮循环执行前要检测的循环条件；第 3 部分指示如何更新计数器。
+> 
+> 在循环中，检测两个浮点数是否相等需要格外小心。下面的for循环可能永远都不会结束。因为 0.1 无法精确地用二进制表示。
+```
+  for (double x = 0; x != 10; x += 0.1)...
+```
+> [LotteryOdds.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/LotteryOdds/LotteryOdds.java)
+- 5. 多重选择：switch 语句
+> switch case break default;
+- 6. 中断控制流程语句
+> break continue
+### 大数值
+- 如果基本的整数和浮点数精度不能够满足需求，那么可以使用 java.match 包中的两个很有用的类：BigInteger 和 BigDecimal
+- BigInteger 实现了任意精度的整数运算   
+- BigDecimal 实现了任意精度的浮点数运算 
+>  [BigIntegerTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/BigIntegerTest/BigIntegerTest.java)
+### 数组
+- 数组是一种数据结构，用来存储同一类型值的集合。通过一个整型下标可以访问数组中的每一个值。
+```
+  int[] a;
+   或
+  int a[]; 
+```
+- 创建一个**数字数组**时，所有的元素都**初始化为0**.**boolean数组**的元素会**初始化为false**。**对象数组**的元素则**初始化为一个特殊值null**，这表示这些元素还未存放任何对象。
+```
+  String[] names = new String[10];  // 创建一个包含10个字符串的数组，所有字符串都为null。
+  //  如果希望这个数组包含空串，可以为元素指定空串：
+  for (int i = 0; i < 10; i++) names[i] = "";
+```
+- 如果创建了一个100个元素的数组，并且试图访问任何在 0 ~ 99 之外的下标时，会引发 “ array index out of bounds” 异常而终止执行。
+- array.length 可以获得数组中元素的个数
+```
+  for（int i = 0;i < a.length; i++）
+    System.out.println(a[i]);
+```
+- 一旦创建了数组，就**不能再改变它的大小**（尽管可以改变每一个数组元素）。如果经常需要在运行中扩展数组的大小，就应该使用另一种数据结构——数组列表（array list）
+- 1. for each 循环
+
+
+
+
+
+
+
 
 
 
