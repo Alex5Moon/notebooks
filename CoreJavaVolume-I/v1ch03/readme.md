@@ -64,7 +64,15 @@ public class FirstSample{
 - 3. 位运算符 &（与），|（或），^（异或），~（非），
 >  << 、>> 运算符将二进制位进行左移或右移操作,当需要建立位模式屏蔽某些位时，使用这两个运算符十分方便。>>> 用0 填充高位，>> 运算符用符号位填充高位。没有 <<< 运算符。
 - 4. 数学函数与常量：Math类中，提供了各种各样的数学函数。
-> Math.sin, Math.con, Math.tan, Math.atan, Math.atan2, Math.sqrt, Math.pow, Math.exp, Math.log, Math.log10, Math.PI, Math.E, Math.round
+> Math.sin, Math.con, Math.tan, Math.atan, Math.atan2, 
+> 
+> Math.sqrt, Math.pow,
+> 
+> Math.exp, Math.log, Math.log10,
+> 
+> Math.PI, Math.E, 
+> 
+> Math.round, Math.random
 - 5. 数值类型之间的转换 优先级 double > float > long > int 
 - 6. 强制类型转换
 ```
@@ -107,7 +115,7 @@ public class FirstSample{
   if (greeting.substring(0,3) == "Hel")...
      // probable false
 ```
-> 如果虚拟机始终将相同的字符串共享，就可以用 == 检测是否相等。但实际上只有字符串**常量**是共享的，而 + 或 substring 等操作产生的结果并不是共享的。因此，千万不要使用 == 运算符测试字符串的相等行。
+> 如果虚拟机始终将相同的字符串共享，就可以用 == 检测是否相等。但实际上只有字符串**常量**是共享的，而 + 或 substring 等操作产生的结果并不是共享的。因此，千万不要使用 == 运算符测试字符串的相等性。
 - 5. 空串 与 Null 串
 > 空串""是长度为0 的字符串。可以用以下代码
 ```
@@ -125,7 +133,27 @@ public class FirstSample{
 ```
 - 6. 代码点与代码单元 ？ 没用过
 - 7. 字符串API
-> char charAt (int index); int length(); int indexOf(String str); int lastIndexOf(String str); boolean startsWith(String prefix); boolean endsWith(String suffix); boolean equals(Object other); String trim(); String substring(int beginIndex);String toLowerCase();String replace(CharSequence oldString, CharSequence newString);
+> char charAt (int index);
+> 
+> int length();
+> 
+> int indexOf(String str); 
+> 
+> int lastIndexOf(String str);
+> 
+> boolean startsWith(String prefix); 
+> 
+> boolean endsWith(String suffix);
+> 
+> boolean equals(Object other); 
+> 
+> String trim(); 
+> 
+> String substring(int beginIndex);
+> 
+> String toLowerCase();
+> 
+> String replace(CharSequence oldString, CharSequence newString);
 - 8. 阅读联机 API 文档
 > API文档是JDK 的一部分，它是HTML格式的。让浏览器指向安装JDK 的 docs/api/index.html 子目录
 - 9. 构建字符串
@@ -140,12 +168,40 @@ public class FirstSample{
 ```
 > 在JDK 5.0中引入 StringBuilder 类。这个类的前身是 StringBuffer，其效率稍有些低，但允许采用**多线程**的方式执行添加或删除字符的操作。如果所有字符串在一个单线程中编辑（通常都是这样），则应该用 StringBuilder 替代它。这两个类的 API 是相同的。
 > 
-> StringBuilder(); int length(); StringBuilder append(String str); StringBuilder append(char c); void setCharAt(int i, char c); StringBuilder insert(int offset, String str); StringBuilder insert(int offset, char c); StringBuilder delete(int startIndex, int endIndex); String toString()
+> StringBuilder(); 
+> 
+> int length();
+> 
+> StringBuilder append(String str); 
+> 
+> StringBuilder append(char c); 
+> 
+> void setCharAt(int i, char c); 
+> 
+> StringBuilder insert(int offset, String str);
+> 
+> StringBuilder insert(int offset, char c); 
+> 
+> StringBuilder delete(int startIndex, int endIndex); 
+> 
+> String toString()
 ### 输入输出
-- 1. 读取输入 [inputTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/InputTest/InputTest.java)
+- 1. 读取输入
+> [inputTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/InputTest/InputTest.java)
+> 
 > Scanner 类定义在 java.util包中。当使用的类不是定义在基本 java.lang 包中时，一定要使用 import 指示字将相应的包加载进来。
 > 
-> Scanner(InputStream in); String nextLine(); String next(); int nextInt(); double nextDouble(); boolean hasNext();...
+> Scanner(InputStream in); 
+> 
+> String nextLine();
+> 
+> String next(); 
+> 
+> int nextInt(); 
+> 
+> double nextDouble(); 
+> 
+> boolean hasNext();...
 - 2. 格式化输出
 > 类似C 语言中的 printf()
 - 3. 文件输入与输出
@@ -170,6 +226,7 @@ public class FirstSample{
 > while (condition) statement 、 do statement while (condition) 、 
 > 
 > [Retirement.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/Retirement/Retirement.java)
+> 
 > [Retirement2.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/Retirement2/Retirement2.java)
 - 4. 确定循环
 > for循环语句是支持迭代的一种通用结构，利用每次迭代之后更新的计数器或类似的变量来控制迭代次数。下面的程序将数字 1 ~ 10 输出到屏幕上。
@@ -207,19 +264,68 @@ public class FirstSample{
   for (int i = 0; i < 10; i++) names[i] = "";
 ```
 - 如果创建了一个100个元素的数组，并且试图访问任何在 0 ~ 99 之外的下标时，会引发 “ array index out of bounds” 异常而终止执行。
-- array.length 可以获得数组中元素的个数
+- **array.length** 可以获得数组中元素的个数
 ```
   for（int i = 0;i < a.length; i++）
     System.out.println(a[i]);
 ```
 - 一旦创建了数组，就**不能再改变它的大小**（尽管可以改变每一个数组元素）。如果经常需要在运行中扩展数组的大小，就应该使用另一种数据结构——数组列表（array list）
 - 1. for each 循环
-
-
-
-
-
-
+> Java有一种功能很强的循环结构，可以用来依次处理数组中的每个元素而不必为指定下标值而分心。
+```
+  // for (variable : collection) statement
+  for (int element : a)
+    System.out.println(element);
+  for (int i = 0; i < a.length; i++)
+    System.out.println(a[i]);
+  // 有个更加简单的方式打印数组中的所有值
+  System.out.println(Arrays.toString(a));
+```
+- 2. 数组初始化以及匿名数组
+- 3. 数组拷贝
+> 在Java中，允许将一个数组变量拷贝给另一个数组变量。这时，两个变量将引用同一个数组。**Arrays 类的 copyOf方法**，第二个参数是新数组的长度。
+```
+  int[] copiedLuckNumbers = Arrays.copyOf(luckNumbers,luckNumbers.length)
+```
+- 4. 命令行参数
+> 每一个Java应用程序都有一个带 String arg[] 参数的main方法。这个参数表明main方法将接收一个字符串数组，也就是命令行参数。
+- 5. 数组排序
+> 要想对数值型数组进行排序，可以使用**Arrays 类中的 sort方法**：这个方法使用了优化的 快速排序算法。
+```
+  int[] a = new int[10000];
+  ...
+  Arrays.sort(a);
+```
+> [LotteryDrawing.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/LotteryDrawing/LotteryDrawing.java)
+- API
+```
+  static  String  toString(type[] a)
+  static  type    copyOf(type[] a, int lengh)
+  static  type    copyOfRange(type[] a, int start, int end)
+  static  void    sort(type[] a)
+  static  int     binarySearch(type[] a, type v)
+  static  int     binarySearch(type[] a, int start, int end, type v)
+  static  void    fill(type[] a, type v)  // 将数组所有元素值设置为 v
+  static  boolean  equals(type[] a, type[] b)
+```
+- 6. 多维数组
+> 多维数组将使用多个下标访问数组元素，它使用于表示格式或更加复杂的排列形式。
+>
+> for each 循环语句不能自动处理二维数组的每一个元素。它是按照行，也就是一维数组处理的。要想访问二维数组a的所有元素，需要使用两个嵌套的循环：
+```
+  for (double[] row : a)
+    for (double value : row)
+      do something with value      
+```
+> 快速地打印一个二维数组的数据元素列表
+```
+  System.out.pringln(Arrays.deepToString(a));
+```
+> 计算投资增长情况[CompoundInterest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/CompoundInterest/CompoundInterest.java) 
+- 7. 不规则数组
+> 目前为止，数组与其他程序设计语言中提供的数组没有多大区别。但实际上存在着一些细微的差异，这正是Java的优势所在：Java实际上没有多维数组，只有一维数组。多维数组被解释为**“数组的数组”**。
+> 
+> [LotteryArray.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch03/LotteryArray/LotteryArray.java)
 
 
 
