@@ -166,6 +166,48 @@
 ### API java.text.DateFormatSymbols 1.1
 > 
 ### 4.3 用户自定义类
+> 上一章中，已经开始编写了一些简单的类。但是，那些类都只包含一个简单的 main 方法。现在开始学习如何设计复杂应用程序所需要的各种**主力类（workhorse class）**。通常，这些类没有main 方法，却有自己的实例域和实例方法。要想创建一个完整的程序，应该将若干类组合在一起，其中只有一个类有 main 方法。
+### 4.3.1 Employee 类
+- 在Java中，最简单的类定义形式为：
+```
+  class ClassName{
+    field1
+    field2
+    ...
+    constructor1
+    constructor2
+    ...
+    method1
+    method2
+    ...
+  }
+```
+- 下面是一个非常简单的 Employee 类
+- [EmployeeTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch04/EmployeeTest/EmployeeTest.java)
+- 在这个程序中包含两个类：Employee 类 和带有 public 访问修饰符的 EmployeeTest 类。EmployeeTest类包含了 main方法。
+- 源文件名是 EmployeeTest.java，这是因为文件名必须与 public 类的名字相匹配。在一个源文件中，只能有一个公有类，但可以有任意数目的非公有类。
+- 接下来，当编译这段源代码的时候，编译器将在目录下创建两个类文件：EmployeeTest.class 和 Employee.class
+- 将程序中包含 main 方法的类名提供给字节码解释器，以便启动这个程序：
+` java EmployeeTest `
+- 字节码解释器开始运行EmployeeTest 类的main 方法中的代码。
+### 4.3.2 多个源文件的使用
+### 4.3.3 剖析 Employee 类
+- 首先从这个类的方法开始。通过查看源代码会发现，这个类包含一个构造器和 4个方法
+- 这个类的所有方法都被标记为 public。关键字public 意味着任何类的任何方法都可以调用这些方法（共有4 种访问级别）
+- 在Employee 类的实例中有三个实例域用来存放将要操作的数据。关键字 private 确保只有Employee 类自身的方法能够访问这些实例域，而其他类的方法不能够读写这些域。
+- 最后，请注意，有两个实例域本身就是对象：name 域是 String类对象， hireDay 域是 Date类对象。这种情形十分常见：类通常包括类型属于某个类类型的实例域。
+### 4.3.4 从构造器开始
+- 构造器与类同名。在构造 Employee 类的对象时，构造器会运行，以便将实例域初始化为所希望的状态。
+- 构造器与其他的方法有一个重要的不同。构造器总是伴随着new 操作符的执行被调用，而不能对一个已经存在的对象调用构造器来达到重新设置实例域的目的。
+- 1 构造器与类同名
+- 2 每个类可以有一个以上的构造器
+- 3 构造器可以有0个、1个或多个参数
+- 4 构造器没有返回值
+- 5 构造器总是伴随着 new 操作一起调用
+- 所有的Java对象都是在堆中构造的，不要在构造器中定义与实例域重名的局部变量。
+### 4.3.5 隐式参数与显示参数
+
+
 
 > 注意不要编写返回引用可变对象的访问器方法。在Employee类中就违反了这个设计原则。如果需要返回一个可变对象的引用，应该首先对她进行克隆（clone）
 
