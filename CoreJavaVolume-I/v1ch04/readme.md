@@ -233,13 +233,90 @@
 - final 修饰符大都应用于**基本（primitive）**类型域，或**不可变（immutable）**类的域（如果类中的每个方法都不会改变其对象，这种类就是不可变的类）。例如，String 类就是一个不可变的类。对于可变的类，使用 final 修饰符可能会对读者造成混乱。
 ### 4.4 静态域与静态方法
 ### 4.4.1 静态域
-- 
-### Java程序设计语言总是采用按值调用。（程序清单 4-4）
-- 一个方法不能修改一个基本数据类型的参数（即数值型和布尔型）
-- 一个方法可以改变一个对象参数的状态
-- 一个方法不能让对象参数引用一个新的对象
-
+- 如果将域定义为 static，每个类中只有一个这样的域。而每一个对象对于所有的实例域却都有自己的一份拷贝。例如，假定需要给每一个雇员赋予唯一的标识码。这里给Employee 类添加一个实例域 id和 一个静态域 nextId：
+```
+  class Employee{
+    private static int nextId = 1;
+    
+    private int id;
+    ...
+  }
+```
+- 现在，每一个雇员对象都有一个自己的id域，但这个类的所有实例将共享一个 nextId域。换句话说，如果有1000个Employee 类的对象，则有1000 个实例域id。但是，只有一个静态域 nextId。即使没有一个雇员对象，静态域 nextId也存在。它属于类，而不属于任何独立的对象。
+### 4.4.2 静态常量
+- 静态变量使用得比较少，但静态常量却使用得比较多。例如，在Math 类中定义了一个静态常量
+```
+  public class Math{
+    ...
+    public static final double PI = 3.14159265358979323846;
+    ...
+  }
+```
+- 在程序中，可以采用 Math.PI 的形式获得这个常量。
+- 如果关键字 static 被省略， PI就变成了Math类的一个实例域。需要通过Math 类的对象访问PI ，并且每一个Math 对象都有它自己的一份 PI 拷贝。
+- 另一个多次使用的静态常量是System.out。 它在System 类中的声明：
+```
+  public class System{
+    ...
+    public static final PrintStream out = ... ;
+    ...
+  }
+```
+- 由于每个类对象都可以对公有域进行修改，所以，最好不要讲域设计为public。然而，公有常量（即 final 域）却没问题。因为 out 被声明为final，所以，不允许再将其它打印流赋给它：
+`  System.out = new PrintStream(...);  // ERROR -- out is final `
+### 4.4.3 静态方法
+- 静态方法是一种不能向对象实施操作的方法。例如，Math 类的 pow 方法就是一个静态方法。表达式 Math.pow(x, a) 计算幂 x^a.在运算时，不适用任何Math 对象。换句话说，没有隐式的参数。可以认为静态方法是没有this 参数的方法。
+- Employee 类的静态方法**不能访问 Id实例域**，因为它不能操作对象。但是，静态方法可以访问自身类的静态域。
+```
+  public static int getNextId(){
+    return nextId; // returns static field 
+  }
+```
+- 可以通过类名调用这个方法：
+` int n = Employee.getNextId(); `
+- 这个方法可以省略关键字 static 吗？答案是肯定的。但是，需要通过Employee 类对象的引用调用这个方法。
+- 在下面两种情况下使用静态方法：
+- 1. 一个方法不需要访问对象状态，其所需参数都是通过显示参数提供（例如：Math.pow）
+- 2. 一个方法只需要访问类的静态域（例如： Employee.getNextId）。
+### 4.4.4 工厂方法
+- 静态方法还有一种常见的用途。 NumberFormat 类使用工厂方法产生不同风格的格式对象。
+```
+  NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
+  NumberFormat percentFormatter = NumberFormat.getPercentInstance();
+  double x = 0.1;
+  System.out.println(currencyFormatter(x));  //  prints $0.10
+  System.out.println(percentFormatter(x));   //  prints 10%
+```
+- 为什么 NumberFormat 类不利用构造器完成这些操作呢？这主要有两个原因：
+- 1. 无法命名构造器。构造器的名字必须与类名相同。但是，这里希望将得到的货币实例和百分比实例采用不同的名字。
+- 2. 当使用构造器时，无法改变所构造的对象类型。而 Factory 方法将返回一个 DecimalFormat 类对象，这是 NumberFormat 的子类。
+### 4.4.5 main方法
+- 注意，不需要使用对象调用静态方法。例如，不需要构造Math 类对象就可以调用 Math.pow.
+- 同理，main 方法也是一个静态方法。
+- main方法不对任何对象进行操作。事实上，在启动程序时还没有任何一个对象。静态的main方法将执行并创建程序所需要的对象。
+- [StaticTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch04/StaticTest/StaticTest.java)
+- 这个程序包含了Employee 类的一个简单版本，其中有一个静态域 nextId 和一个静态方法 getNextId。
+- Employee 类已有一个静态的main 方法用于单元测试。 
+  `java Employee `
+  `java StaticTest`
+- 执行两个main 方法。
+> 
+### 方法参数
+- 在程序设计语言中有关将参数传递给方法（或函数）的一些专业术语：**按值调用（call by value）**表示方法接收的是调用者提供的值。而**按引用调用（call by reference）**表示方法接收的是调用者提供的变量**地址**。一个方法可以**修改**传递引用所对应的变量值，而不能修改传递值调用所对应的变量值。“按...嗲用（call by）”是一个标准的计算机科学术语，它用来描述各种程序设计语言（不只是Java）中方法参数的传递方式。
+- Java程序设计语言**总是**采用按值调用。也就是说，方法得到的是所有参数值的一个拷贝，特别是，方法不能修改传递给它的任何参数变量的内容。
+- [CallTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch04/ParamTest/CallTest.java)
+- 方法参数共有两种类型：
+- 1. 基本数据类型（数字、布尔值）
+- 2. 对象引用
+- 一个方法不可能修改一个基本数据类型的参数。而对象引用作为参数就不同了。
+- [ParamTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch04/ParamTest/ParamTest.java)
+- 上面的程序说明：Java程序设计语言对对象采用的不是引用调用，实际上，**对象引用进行的是值传递**。
+- 1 一个方法不能修改一个基本数据类型的参数（即数值型和布尔型），也不能修改不可变对象的状态。
+- 2 一个方法可以改变一个对象参数的状态
+- 3 一个方法不能让对象参数引用一个新的对象
+> 
 ### 对象构造
+> 
 > 如果类中提供了至少一个构造器，但是没有提供无参数的构造器，则在构造对象时如果没有提供参数就会被视为不合法。
 
 ### 初始化块（initialization block）
