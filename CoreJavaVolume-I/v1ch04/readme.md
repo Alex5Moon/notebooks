@@ -188,6 +188,7 @@
 - 源文件名是 EmployeeTest.java，这是因为文件名必须与 public 类的名字相匹配。在一个源文件中，只能有一个公有类，但可以有任意数目的非公有类。
 - 接下来，当编译这段源代码的时候，编译器将在目录下创建两个类文件：EmployeeTest.class 和 Employee.class
 - 将程序中包含 main 方法的类名提供给字节码解释器，以便启动这个程序：
+> 
 ` java EmployeeTest `
 - 字节码解释器开始运行EmployeeTest 类的main 方法中的代码。
 ### 4.3.2 多个源文件的使用
@@ -263,6 +264,7 @@
   }
 ```
 - 由于每个类对象都可以对公有域进行修改，所以，最好不要讲域设计为public。然而，公有常量（即 final 域）却没问题。因为 out 被声明为final，所以，不允许再将其它打印流赋给它：
+> 
 `  System.out = new PrintStream(...);  // ERROR -- out is final `
 ### 4.4.3 静态方法
 - 静态方法是一种不能向对象实施操作的方法。例如，Math 类的 pow 方法就是一个静态方法。表达式 Math.pow(x, a) 计算幂 x^a.在运算时，不适用任何Math 对象。换句话说，没有隐式的参数。可以认为静态方法是没有this 参数的方法。
@@ -297,8 +299,10 @@
 - [StaticTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch04/StaticTest/StaticTest.java)
 - 这个程序包含了Employee 类的一个简单版本，其中有一个静态域 nextId 和一个静态方法 getNextId。
 - Employee 类已有一个静态的main 方法用于单元测试。 
-  `java Employee `
-  `java StaticTest`
+>
+ `java Employee `
+> 
+`java StaticTest`
 - 执行两个main 方法。
 > 
 ### 方法参数
@@ -319,6 +323,7 @@
 > 前面已经可以编写简单的构造器，便于对定义的对象进行初始化。但是，由于对象构造非常重要，所以Java 提供了多种编写构造器的方式。
 ### 4.6.1 重载
 - 前面的 GregorianCalendar 类有多个构造器。可以使用：
+> 
 ` GregorianCalendar today = new GregorianCalendar();`
 - 或
 ` GregorianCalendar deadline = new GregorianCalendar(2099, Calendar.DECEMBER, 31);`
@@ -351,12 +356,15 @@
 ```
 - 如果在编写一个类时没有编写构造器，那么系统就会提供一个无参数构造器。这个构造器将所有的实例域设置为默认值。于是，实例域中的数值型数据设置为0、布尔型数据设置为 false、所有对象变量将设置为 null。
 - 如果类中提供了至少一个构造器，但是没有提供无参数的构造器，则在构造对象时如果没有提供参数就会被视为**不合法**。例如，在Employee 类提供了一个简单的构造器：
+> 
 ` Employee(String name, double salary, int y, int m, int d)`
 - 对于这个类，构造默认的雇员属于不合法。也就是说，调用
+> 
 ` e = new Employee();`
 - 将产生错误。
 #### 警告！
 - 仅当类没有提供任何构造器的时候，系统才会提供一个默认的构造器。如果在编写类的时候，给出了一个构造器，哪怕是很简单的，要想让这个类的用户能够采用下列方式构造实例：
+> 
 ` new ClassName()`
 - 就必须提供一个默认的构造器（即不带参数的构造器）。当然，如果希望所有域被赋予默认值，可以采用下列各式：
 ```
@@ -388,12 +396,155 @@
     ...
   }
 ```
-
-
-
-### 初始化块（initialization block）
-> 在一个类的声明中，可以包含多个代码块。只要构造类的对象，这些块就会被执行。首先运行初始化块，然后才运行构造器的主体部分。
-
+### 4.6.5 参数名
+- 在编写很小的构造器时，常常在参数命名上出现错误。
+- 通常，参数用单个字符命名：
+```
+  public Employee(String n, double s){
+    name = n;
+    salary = s;
+  }
+```
+- 但这样做有一个缺陷：只有阅读代码才能了解参数n 和参数 s的含义。于是，有些程序员在每个参数名前加上一个前缀“a”：
+```
+  public Employee(String aName, double aSalary){
+    name = aName;
+    salary = aSalary;
+  }
+```
+- 这样很清晰。每个读者一眼就能够看懂参数的含义。
+- 还有一种常用的技巧，它基于这样的事实：参数变量用同样的名字将实例域**屏蔽**起来。this 指示隐式参数，也就是被构造的对象。
+```
+  public Employee(String name, double salary){
+    this.name = name;
+    this.salary = salary;
+  }
+```
+### 4.6.6 调用另一个构造器
+- 关键字 this 引用方法的隐式参数。然而，这个关键字还有另外一个含义。
+- 如果**构造器**的第一个语句形如 this(...)，这个构造器将调用同一个类的另一个构造器。如：
+```
+  public Employee(double s){
+    // calls Employee(String, double)
+    this("Employee #" + nextId, s);
+    nextId++;
+  }
+```
+- 当调用 new Employee(60000) 时， Employee(double) 构造器将调用 Employee(String, double)构造器。
+>
+### 4.6.7 初始化块
+- 前面已经知道的两种初始化数据域的方法
+- 1 在构造器中设置值
+- 2 在声明中赋值
+- 实际上，Java 还有第三种机制，称为**初始化块（initialization block）**。在一个类的声明中，可以包含多个代码块。只要构造类的对象，这些块就会被执行。例如，
+```
+    class Employee{
+      private static int nextId;
+      
+      private int id;
+      private String name;
+      private double salary;
+      
+      // object initialization block
+      {
+        id = nextId;
+        nextId++;
+      }
+      
+      public Employee(String n, double s){
+        name = n;
+        salary = s;
+      }
+      
+      public Employee(){
+        name = "";
+        salary = 0;
+      }
+    }
+```
+- 在这个示例中，无论使用哪个构造器构造对象，id域都在对象初始化块中被初始化。**首先**运行初始化块，然后才运行构造器的主体部分。
+- 这种机制不是必需的，也不常见。通常，直接将初始化代码放在构造器中。
+- 由于初始化数据域有多种途径，所以列出构造过程的所有路径可能想当混乱。下面是调用构造器的具体处理步骤：
+- 1）所有数据域被初始化为默认值（0、false 或 null）
+- 2）按照在类声明中出现的次序，依次执行所有域初始化语句和初始化块。
+- 3）如果构造器第一行调用了第二个构造器，则执行第二个构造器主体。
+- 4）执行这个构造器的主体。
+- 当然，应该精心地组织好初始化代码，这样有利于其他程序员的理解。例如，如果让类的构造器行为依赖于数据域声明的顺序，那就会显得很奇怪并且容易引起错误。
+- 可以通过提供一个初始化值，或者使用一个静态的初始化块来对静态域进行初始化。前面已经介绍过第一种机制：
+- ` private static int nextId = 1; `
+- 如果对类的静态域进行初始化的代码比较复杂，那么可以使用静态的初始化块。
+- 将代码放在一个块中，并标记关键字static。下面是一个示例。其功能是将雇员ID 的起始值赋予一个小于 10000 的随机整数。
+```
+  // static initialization block
+  static{
+    Random generator = new Random();
+    nextId = generator.nextInt(10000);   // 返回 0 ~ 10000-1 之间的随机数
+  }
+```
+- 在类第一次加载的时候，将会进行静态域的初始化。与实例域一样，除非将它们显式地设置成其他值，否则默认的初始值是 0、false 或 null。所有的静态初始化语句以及初始化块都将按照类定义的顺序执行。
+- 可以使用Java编写一个没有main 方法的 “Hello, World”程序。
+```
+  public class Hello{
+    static{
+      System.out.println("Hello, World");
+    }
+  }
+```
+- [ConstructorTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch04/ConstructorTest/ConstructorTest.java) 这个程序将展示：
+- 重载构造器
+- 用 this(...) 调用另一个构造器
+- 无参数构造器
+- 对象初始化块
+- 静态初始化块
+- 实例域初始化
+> 
+### 4.6.8 对象析构与 finalize 方法
+- 在析构器中，最常见的操作是回收分配给对象的存储空间。由于Java有自动的垃圾回收器，不需要人工回收内存，所以Java不支持析构器。
+- 当然，某些对象使用了内存之外的其他资源，例如，文件或使用了系统资源的另一个对象的句柄。在这种情况下，当资源不再需要时，将其回收和再利用将显得十分重要。
+- 可以为任何一个类添加 finalize 方法，finalize 方法将在垃圾回收器清除对象之前调用。在实际应用中，不要依赖于使用finalize 方法回收任何短缺的资源，这是因为很难知道这个方法什么时候才能够调用。
+- 如果某个资源需要在使用完毕后立刻被关闭，那么就需要由人工来管理。对象用完时，可以应用一个close 方法来完成相应的清理操作。
+### 4.7 包
+### 4.7.1 类的导入
+- 
+### 4.7.2 静态导入
+- import 语句不仅可以导入类，还增加了导入静态方法和静态域的功能。
+- 例如，如果在源文件的顶部，添加一条指令：
+```
+  import static java.lang.System.*;
+```
+- 就可以使用System 类的静态方法和静态域，而不必加类名前缀：
+```
+  out.println("Goodbye, Wold!");
+  exit(0);
+```
+- 另外，还可以导入特定的方法或域：
+```
+  import static java.lang.System.out;
+```
+- 这种编写形式不利于代码的清晰度。不过
+- ` sqrt(pow(x,2) + pow(y,2))`
+- 看起来比
+- ` Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)) `
+- 清晰得多。
+### 4.7.3 将类放入包中
+- 
+- 
+### 4.7.4 包作用域
+- 
+- 
+### 4.8 类路径
+- 设置类路径
+- 
+### 4.9 文档注释
+### 4.9.1 注释的插入
+### 4.9.2 类注释
+### 4.9.3 方法注释
+### 4.9.4 域注释
+### 4.9.5 通用注释
+### 4.9.6 包与概述注释
+### 4.9.7 注释的抽取
+- 
+> 
 ### 类设计技巧
 1. 一定要保证数据私有。
 2. 一定要对数据初始化。
