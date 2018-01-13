@@ -326,6 +326,7 @@
 > 
 ` GregorianCalendar today = new GregorianCalendar();`
 - 或
+>
 ` GregorianCalendar deadline = new GregorianCalendar(2099, Calendar.DECEMBER, 31);`
 - 这种特征叫做**重载（overloading）**。如果多个方法（比如，GregorianCalendar 构造器方法）有相同的名字、不同的参数，便产生了重载。编译器必须挑选出具体执行哪个方法，它通过用各个方法给出的参数类型与特定方法所调用的值类型进行匹配来挑选出相应的方法。如果编译器找不到匹配的参数，就会产生编译时错误，因为根本不存在匹配，或者没有一个比其他的更好。（这个过程被称为**重载解析（overloading resolution）**。）
 - Java 允许重载任何方法，而不只是构造器方法。因此，要完整地描述一个方法，需要指出**方法名以及参数类型**。这叫做**方法的签名（signature）**。例如，String 类有4个称为indexOf 的公有方法。它们的签名是
@@ -511,6 +512,7 @@
 - 例如，如果在源文件的顶部，添加一条指令：
 ```
   import static java.lang.System.*;
+  import static java.lang.Math.*;
 ```
 - 就可以使用System 类的静态方法和静态域，而不必加类名前缀：
 ```
@@ -520,6 +522,7 @@
 - 另外，还可以导入特定的方法或域：
 ```
   import static java.lang.System.out;
+  import static java.lang.Math.sqrt;    
 ```
 - 这种编写形式不利于代码的清晰度。不过
 - ` sqrt(pow(x,2) + pow(y,2))`
