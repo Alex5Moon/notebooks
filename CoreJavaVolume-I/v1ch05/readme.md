@@ -23,16 +23,82 @@
 ```
 - 尽管在Manager 类中没有显式地定义getName 和 getHireDay 等方法，但属于 Manager 类的对象却可以使用它们，这是因为 Manager 类自动地继承了超类Employee 中的这些方法。
 - 同样，从超类中还继承了 name、salary 和 hireDay 这3个域。这样一来，每个Manager 类对象就包含了 4 个域：name、salary、hireDay和 bonus。
-- 在通过扩展超类定义子类的时候，仅需要指出子类与超类的**不同之处**。因此在设计类的时候，应该将通用的方法放在超类中，而将
-- 在子类中可以增加域、增加方法或覆盖超类的方法，然而绝对不能删除继承的任何域和方法。
-- 使用关键字super调用超类的方法。
+- 在通过扩展超类定义子类的时候，仅需要指出子类与超类的**不同之处**。因此在设计类的时候，应该将通用的方法放在超类中，而将具有特殊用途的方法放在子类中，这种将通用的功能放到超类的做法，在面向对象程序设计中十分普遍。
+- 然而，超类中的有些方法对子类 Manager 并不一定适用。具体来说， Manager 类中的getSalary 方法应该返回薪水和奖金的总和。为此，需要提供一个新的方法来**覆盖（override）**超类中的这个方法：
+```
+  class Manager extends Employee{
+    ...
+    public double getSalary(){
+      ...
+    }
+    ...
+  }
+```
+- 如何实现这个方法？乍看起来似乎很简单，只要返回 salary 和 bonus 域的总和就可以了：
+```
+  public double getSalary(){
+    return salary + bonus; // won't work
+  }
+```
+- 然而，这个方法并不能运行。这是因为 Manager 类的getSalary 方法不能够**直接地访问超类的私有域**。也就是说，尽管每个Manager 对象都拥有一个名为 salary 的域，但在Manager 类的getSalary 方法并不能够直接地访问salary 域。只有 Employee 类的方法才能够访问私有部分。如果Manager 类的方法一定要访问私有域，就必须借助于公有的接口，Employee 类中的公有方法 getSalary 正是这样一个接口。
+- 现在，将对salary 域的访问替换成调用 getSalary 方法。
+```
+  public double getSalary(){
+    double baseSalary = getSalary();   // still won't work
+    return baseSalary + bonus;
+  }
+```
+- 上面这段代码仍然不能运行。问题出现在调用 getSalary 的语句上，这是因为Manager 类也有一个 getSalary 方法（就是正在实现的这个方法），所以这条语句将会无限次地调用**自己**，直到整个程序崩溃位置。
+- 注意：我们希望调用超类 Employee 中的 getSalary 方法，而不是当前类的这个方法。为此，可以使用特定的关键字 super 解决这个问题。
+- ` super.getSalary() `
+- 上述语句调用的是 Employee 类中的getSalary 方法。下面是Manager 类中 getSalary 方法的正确书写格式：
+```
+  public double getSalary(){
+    double baseSalary = super.getSalary();
+    return baseSalary + bonus;
+  }
+```
+- 在子类中可以**增加域、增加方法**或**覆盖超类**的方法，然而绝对不能删除继承的任何域和方法。
+- super 在构造器中应用
+```
+  public Manager(String n, double s, int year, int month, int day){
+    super(n, s, year, month, day);
+    bonus = 0;
+  }
+```
+- 由于Manager 类的构造器不能访问Employee 类的私有域，所以必须利用Employee 类的构造器对这部分私有域进行初始化，我们可以通过super 实现对超类构造器的调用。使用 super 调用构造器的语句必须是子类构造器的第一条语句。
+- 如果子类的构造器没有显式地调用超类的构造器，则将自动地调用超类默认（没有参数）的构造器。如果超类没有不带参数的构造器，并且在子类的构造器中又没有显式地调用超类的其他构造器，则Java 编译器将报告错误。
 1. 关键字 this  有两个用途：一是引用隐式参数，二是调用该类其他的构造器。
 2. 关键字super也有两个用途：一是调用超类的方法，二是调用超类的构造器。
-- 调用构造器的语句只能作为另一个构造器的第一条语句出现。
-> 
-> 一个对象变量可以指示多种实际类型的现象被称为**多态（polymorphism）**。
-> 
-> 在运行期能够自动地选择调用哪个方法的现象被称为**动态绑定（dynamic binding）**。
+- 程序[ManagerTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/inheritance/ManagerTest.java) 展示了 Employee 对象[Employee.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/inheritance/Employee.java) 与 Manager 对象[Manager.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/inheritance/Manager.java) 在薪水计算上的区别。
+- 一个对象变量可以指示多种实际类型的现象被称为**多态（polymorphism）**。
+- 在运行期能够自动地选择调用哪个方法的现象被称为**动态绑定（dynamic binding）**。
+### 5.1.1 继承层次
+- 继承并不仅限于一个层次。例如，可以由 Manager 类派生 Executive 类。由一个公共超类派生出来的所有类的集合被称为**继承层次（inheritance hierarchy）**。在继承层次中，从某个特定的类到其祖先的路径被称为该类的**继承链（inheritance chain）**。
+- 通常，一个祖先类可以拥有多个子孙继承链。例如，可以由 Employee 类派生出子类 Programmer 或 Secretary，它们与Manager 类没有任何关系（有可能它们彼此之间也没有任何关系）。必要的话，可以将这个过程一直延续下去。
+- Java 不支持多继承。Java中的多继承功能通过接口实现。
+### 5.1.2 多态
+- 有一个用来判断是否应该设计为继承关系的简单规则，这就是 “is-a” 规则，它表明子类的每个对象也是超类的对象。例如，每个经理都是雇员，因此，将 Manager类设计为 Employee 类的子类是显而易见的，反之不然，并不是每一名雇员都是经理。
+- “is-a” 规则的另一种表述法是**置换法则**。它表明程序中出现超类对象的任何地方都可以用子类对象置换。
+- 例如，可以将一个子类的对象赋给超类对象。
+```
+  Employee e;
+  e = new Employee(...);   // Employee object expected
+  e = new Manager(...);    // OK, Manager can be used as well
+```
+- 在Java 程序设计语言中，对象变量是**多态的**。一个Employee 变量既可以引用一个Employee 类对象，也可以引用一个Employee 类的任何一个子类对象（例如，Manager、Executive、Secretary等）
+- 从[ManagerTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/inheritance/ManagerTest.java)中，可以看到置换法则的优点：
+```
+  Manager boss = new Manager(...);
+  Employee[] staff = new Employee[3];
+  staff[0] = boss;
+```
+- 在这个例子中，变量 `staff[0]`与 `boss`引用同一个对象。但编译器将`staff[0]`看成Employee对象。这意味着
+- ` boss.setBonus(5000); // OK `
+- 但不能这样调用
+- ` staff[0].setBonus(5000); // ERROR`
+- 因为`staff[0]`声明的类型是Employee，而 setBonus不是 Employee类的方法。
+- 然而，不能讲一个超类的引用
 #### 动态绑定
 1. 编译器查看对象的声明类型和方法名。
 2. 编译器查看调用方法时提供的参数类型。——>重载解析（overloading resolution）
