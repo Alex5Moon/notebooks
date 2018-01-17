@@ -262,34 +262,205 @@
     }
   }
 ```
-- 在子类中
-
-
-1. 编译器查看对象的声明类型和方法名。
-2. 编译器查看调用方法时提供的参数类型。——>重载解析（overloading resolution）
-> 至此，编译器已获得需要调用的方法名字和参数类型。
-3. 如果是private方法、static方法、final方法或者构造器，那么编译器将可以准确地知道应该调用哪个方法。——>**静态绑定（static binding）**
-4. 当程序运行，并且采用动态绑定调用方法时，虚拟机一定调用与x所引用对象的实际类型最合适的那个类的方法。
-#### 在覆盖一个方法的时候，子类方法不能低于超类方法的可见性。特别是，如果超类方法是public，子类方法一定要声明为public。
-#### 阻止继承：final类和方法
-### Object类：所有类的超类
-> Object类是Java中所有类的始祖，在Java中每个类都是由它扩展而来的。
-#### equals方法 hashCode方法 toString方法  --->程序5-8
+- 为了防备 name 或 hireDay 可能为null 的情况，需要使用 Objects.equals 方法。如果两个参数都为null ，Objects.equals(a, b) 调用将返回 true； 如果其中一个参数为null ，则返回 false；否则，如果两个参数都不为null ，则调用 a.equals(b)。利用这个方法， Employee.equals方法的最后一条语句要改写为：
+- ` return Objects.equals(name, other.name) && salary == other.salary && Objects.equals(hireDay, other.hireDay)`
+- 在子类中定义equals 方法时，首先调用超类的equals。如果检测失败，对象就不可能相等。如果超类中的域都相等，就需要比较子类中的实例域。
+```
+  class Manager extends Employee{
+    ...
+    public boolean equals(Object otherObject){
+      if (!super.equals(otherObject)) return false;
+      // super.equals checked that this and otherObject belong to the same class
+      Manager other = (Manager) otherObject;
+      return bonus == other.bonus;
+    }
+  }
+```
+> 
+### 5.2.2 相等测试与继承
+- 如果隐式和显示的参数不属于同一个类，equals 方法将如何处理？这是一个很有争议的问题。在前面的例子中，如果发现类不匹配，equals 方法就返回 false。但是，许多程序员喜欢使用 instanceof 进行检测
+- ` if (!(otherObject instanceof Employee)) return false;`
+- 这样做不但没有解决 otherObject 是子类的情况，并且还有可能招致一些麻烦。建议不要使用这种处理方式。
 - Java语言规范要求equals方法具有下面的特性：
-1. 自反性：对于任何非空引用x，x.equals(x)应该返回true。
-2. 对称性：对于任何引用x和y，y.equals(x)返回true<=>x.equals(y)返回true。
-3. 传递性：
-4. 一致性：如果x和y引用的对象没有发生变化，反复调用x.equals(y)应该返回同样的结果。
-5. 对于任意非空引用x，x.equals(null)应该返回false。
-- **散列码（hash code）**是由对象导出的一个整型值。散列码是没有规律的。
-1. String类使用下列算法计算散列码：
+- 1. 自反性：对于任何非空引用x，x.equals(x)应该返回true。
+- 2. 对称性：对于任何引用x和y，y.equals(x)返回true<=>x.equals(y)返回true。
+- 3. 传递性：
+- 4. 一致性：如果x和y引用的对象没有发生变化，反复调用x.equals(y)应该返回同样的结果。
+- 5. 对于任意非空引用x，x.equals(null)应该返回false。
+- 然而，就对称性来说，当参数不属于同一个类的时候需要仔细考虑！如
+- ` e.equals(m)`
+- e 是一个Employee 对象，m 是一个Manager 对象，并且两个对象具有相同的姓名、薪水和雇佣日期。如果在 Employee.equals 中用 instanceof 进行检测，则返回 true。然而这意味着反过来调用
+- ` m.equals(e)`
+- 也需要返回true。对称性不允许这个方法调用返回false，或者抛出异常。
+- 这就使得 Manager 类受到了束缚。这个类的 equals 方法必须能够用自己与任何一个 Employee 对象进行比较，而不考虑经理拥有的那部分特有信息！instanceof 测试并不是完美无瑕。
+- 从两个截然不同的情况看一下这个问题：
+- 如果子类能够拥有自己的相等概念，则对称性需求将强制采用 getClass 进行检测。
+- 如果由超类决定相等的概念，那么就可以使用 instanceof 进行检测，这样可以在不同子类的对象之间进行相等的比较。
+- 在雇员和经理的例子中，只要对应的域相等，就认为两个对象相等。如果两个Manager 对象所对应的姓名、薪水和雇佣日期均相等，而奖金不相等，就认为它们是不相同的，因此，可以使用 getClass 检测。
+- 但是，假设使用雇员的 ID 作为相等的检测标准，并且这个相等的概念适用于所有的子类，就可以使用 instanceof 进行检测，并应该将 Employee.equals 声明为final。
+### 编写equals 方法的建议：
+- 1）显式参数命名为 otherObject，稍后需要将它转换成另一个叫做other 的变量。
+- 2）检测this 与 otherObject 是否引用同一个对象：
+- ` if (this == otherObject) return true;`
+- 这条语句只是一个优化。实际上，这是一种经常采用的形式。因为计算这个等式要比一个一个地比较类中的域所付出的代价小得多。
+- 3）检测otherObject 是否为 null，如果为 null，返回 false。这项检测是很有必要的。
+- ` if (otherObject == null) return false;`
+- 4）比较this 与 otherObject 是否属于同一个类。如果equals 的语义在每个子类中有所改变，就使用 getClass 检测：
+- ` if (getClass() != otherObject.getClass()) return false;`
+- 如果所有的子类都拥有统一的语义，就使用instanceof 检测：
+- ` if (!(otherObject instanceof ClassName)) return false;`
+- 5）将otherObject 转换为相应的类类型变量：
+- ` ClassName other = (ClassName) otherObject;`
+- 6）现在开始对所有需要比较的域进行比较了。使用 == 比较基本类型域，使用equals 比较对象域。如果所有的域都匹配，就返回 true；否则返回 false。
+- ` return field1 == other.field1 && Objects.equals(field2, other.field2) && ...`
+- 如果在子类中重新定义 equals，就要在其中包含调用 super.equals(other)。
+- 对于数组类型的域，可以使用静态的 Arrays.equals 方法检测相应的数组元素是否相等。
+- 下面是实现 equals 方法的一种常见错误。可以找到其中的问题吗？
 ```
-int hash = 0;
-for(int i=0; i<length(); i++)
-  hash = 31*hash + charAt(i);
+  public class Employee{
+    public boolean equals(Employee other){
+      return Objects.equals(name, other.name)
+        && salary == other.salary
+        && Objects.equals(hireDay, other.hireDay);
+    }
+    ...
+  }
 ```
-2. 由于hashCode方法定义在Object类中，因此每个对象都有一个默认的散列码，其值为对象的存储地址。
-- 强烈建议为自定义的每一个类增加toString方法。
+- 这个方法声明的显式参数类型是 Employee。其结果并没有覆盖 Object类的equals 方法，而是定义了一个完全无关的方法。
+- 为了避免发生类型错误，可以使用 @Override 对覆盖超类方法进行标记。
+- API: java.util.Arrays 1.2
+- ` static Boolean equanls(type[] a, type[] b)`
+- 如果两个数组长度相同，并且在对应的位置上数据元素也均相同，将返回true。数组的元素类型可以是 Object、int、long、short、char、byte、boolean、float 或 double。
+- API: java.util.Objects 7
+- ` static boolean equals(Object a, Object b)`
+- 如果a 和 b 都为null，返回 true；如果只是其中之一为 null，则返回 false；否则返回 a.equals(b)
+> 
+### 5.2.3 hashCode方法
+- **散列码（hash code）**是由对象导出的一个整型值。散列码是没有规律的。如果x 和 y是两个不同的对象，x.hashCode() 与 y.hashCode() 基本上不会相同。
+- String 类使用下列算法计算散列码：
+```
+  public int hashCode(){
+    int hash = 0;
+    for (int i = 0; i < length(); i++)
+      hash = 31 * hash + charAt(i);
+  }
+```
+- 由于 hashCode 方法定义在 Object类中，因此每个对象都有一个默认的散列码，其值为对象的存储地址。
+```
+  String s = "OK";
+  StringBuilder sb = new StringBuilder(s);
+  out.println(s.hashCode() + " " + sb.hashCode());   // 2556   20526976
+  String t = new String("OK");
+  StringBuilder tb = new StringBuilder(t);
+  out.println(t.hashCode() + " " + tb.hashCode());   // 2556   20527144
+```
+- 注意，字符串 s 与 t 拥有相同的散列码，这是因为字符串的散列码是由内容导出的。而字符串缓冲 sb 与 tb 却有着不同的散列码，这是因为在 StringBuilder 类中没有定义 hashCode 方法，它的散列码是由 Object 类默认 hashCode 方法导出的对象的存储地址。
+- 如果重新定义 equals 方法，就必须重新定义 hashCode 方法，以便用户可以将对象插入到散列表中。
+- hashCode 方法应该返回一个整型数值（也可以是负数），并合理地组合实例域的散列码，以便能够让各个不同的对象产生的散列码更加均匀。
+- 下面是 Employee 类的hashCode 方法  为什么是 7,11,13 ？
+```
+  class Employee{
+    public int hashCode(){
+      return 7 * name.hashCode()
+          + 11 * new Double(salary).hashCode()
+          + 13 * hireDay.hashCode();
+    }
+    ...
+  }
+```
+- 不过，在Java 7 中还可以做两个改进。
+- 首先，最好使用null 安全的方法 Objects.hashCode。如果其参数为null，这个方法会返回 0，否则返回对参数调用 hashCode 的结果。
+```
+  public int hashCode(){
+    return 7 * Objects.hashCode(name)
+        + 11 * new Double(salary).hashCode()
+        + 13 * Objects.hashCode(hireDay);
+  }
+```
+- 还有更好的做法，需要组合多个散列值时，可以调用 Objects.hash 并提供多个参数。这个方法会对各个参数调用 Objects.hashCode，并组合这些散列值。这样 Employee.hashCode 方法可以简单写为：
+```
+  public int hashCode(){
+    return Objects.hash(name, salary, hireDay);
+  }
+```
+- equals 与 hashCode 的定义必须一致：如果 x.equals(y) 返回 true，那么 x.hashCode() 就必须与 y.hashCode() 具有相同的值。例如，如果定义的 Employee.equals 比较雇员的 ID，那么 hashCode 方法就需要散列 ID，而不是雇员的姓名或存储地址。
+- 如果存在数组类型的域，那么可以使用静态的 Arrays.hashCode 方法计算一个散列码，这个散列码由数组元素的散列码组成。
+- API: java.util.Object  1.2
+- ` int hashCode()`
+> 返回对象的散列码。散列码可以是任意的整数，包括正数或负数。两个对象相等要求返回相等的散列码。
+- API: java.util.Objects 7
+- ` static int hash(Object ... objects)`
+> 返回一个散列码，由提供的所有对象的散列码组合而得到。
+- ` static int hashCode(Object a)`
+> 如果a 为 null 返回 0，否则返回 a.hashCode()
+- API: java.util.Arrays  1.2
+- ` static int hashCode(type[] a)`
+> 计算数组a 的散列码。组成这个数组的元素类型可以是 object，int，long，short，char，byte，boolean，float 或 double。
+> 
+### 5.2.4 toString方法
+- 在Object 中还有一个重要的方法，就是 toString 方法，它用于返回表示对象值的字符串。下面是一个典型的例子。 Point 类的 toString 方法将返回下面这样的字符串：
+- ` java.awt.Point[x=10,y=20]`
+- 绝大多数（但不是全部）的toString 方法都遵循这样的格式：类的名字，随后是一对方括号括起来的域值。下面是Employee 类中的 toString 方法的实现：
+```
+  public String toString(){
+    return "Employee[name=" + name
+        + ",salary=" + salary 
+        + ",hireDay=" + hireDay
+        + "]";
+  }
+```
+- 实际上，还可以设计得更好一些。最好通过 getClass().getName() 获得类名的字符串，而不要将类名硬加到 toString 方法中。
+```
+  public String toString(){
+    return getClass.getName 
+        +"[name=" + name
+        + ",salary=" + salary 
+        + ",hireDay=" + hireDay
+        + "]";
+  }  
+```
+- toString 方法也可以供子类调用。
+- 当然，设计子类的程序员也应该定义自己的 toString 方法，并将子类域的描述添加进去。如果超类使用了 getClass().getName()，那么 子类只要调用 super.toString() 就可以了，例如
+```
+  class Manager extends Employee{
+    return super.toString
+        + "[bonus=" + bonus
+        + "]";
+  }
+```
+- 现在，Manager 对象将打印输出如下所示的内容
+- ` Manager[name=...,salary=...,hireDay=...][bonus=...]`
+- 随处可见 toString 方法的主要原因是：只要对象与一个字符串通过操作符 “+” 连接起来，Java编译就会自动调用 toString 方法，以便获得这个对象的字符串描述。
+- 如果x是任意一个对象，并调用 out.println(x);
+- println 方法就会直接地调用 x.toString()，并打印输出得到的字符串。
+- Object 类定义了 toString 方法，用来打印输出对象所属的类名和散列码。例如调用 out.println(System.out) 
+- 输出 java.io.PrintStream@2f6684
+- 之所以得到这样的结果是因为 PrintStream 类的设计者没有覆盖 toString 方法
+- 打印数组 Arrays.toString(arr) ，打印多维数组 Arrays.deepToString
+- toString 方法是一种非常有用的调试工具。在标准库中，许多类都定义了 toString 方法，以便用户能够获得一些有关对象状态的必要信息。像下面这样显示调试信息非常有益
+- ` out.println("Current position = " + position);`
+- 更好的解决方法是 
+- ` Logger.global.info("Current position = " + position);`
+- [EqualsTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/equals/EqualsTest.java) 
+- [Employee.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/equals/Employee.java)
+- [Manager.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/equals/Manager.java)
+- 实现了 equals、hashCode 和 toString 方法。
+- API: java.lang.Object 
+- ` Class getClass()`
+> 返回包含对象信息的类对象。封装了类运行时的描述
+- ` boolean equals(Object otherObject)`
+> 比较两个对象是否相等，如果两个对象指向同一块存储区域，方法返回true；否则方法返回 false。在自定义的类中，应该覆盖这个方法。
+- ` String toString()`
+> 返回描述该对象的字符串。在自定义的类中，应该覆盖这个方法。
+- API: java.lang.Class
+- ` String getName()`
+> 返回这个类的名字
+- ` Class getSuperclass()`
+> 以 Class 对象的形式返回这个类的超类信息。
+> 
+### 5.3 泛型数组列表
+
+
 ### 泛型数组列表
 - ArrayList是一个采用**类型参数（type parameter）**的**泛型类（generic class）**。
 - 将Employee[] 数组替换成了 ArrayList<Employee>,请注意下面的变化:
