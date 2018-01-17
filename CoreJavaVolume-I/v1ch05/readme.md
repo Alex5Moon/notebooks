@@ -226,7 +226,44 @@
 - 3） 对本包和所有子类可见——protected
 - 4） 对本包可见——默认
 > 
-### Object：所有类的超类
+### 5.2 Object：所有类的超类
+- Object 类是Java 中所有类的始祖，在Java 中每个类都是由它扩展而来的。
+- 可以使用Object 类型的变量引用任何类型的对象：
+- ` Object obj = new Employee("Harry Hacker",35000);`
+- Object 类型的变量只能用于作为各种值的通用持有者。要想对其中的内容进行具体的操作，还需要清楚对象的原始类型，并进行相应的类型转换：
+- ` Employee e = (Employee) obj;`
+- 在Java 中，只有**基本类型（primitive types）**不是对象，例如，数值、字符和布尔类型的值都不是对象。所有的数组类型，不管是对象数组还是基本类型的数组都扩展于Object 类。
+```
+  Employee[] staff = new Employee[10];
+  obj = staff; // ok
+  obj = new int[10];  // ok
+```
+### 5.2.1 equals 方法
+- Object 类中的equals 方法用于检测一个对象是否等于另外一个对象。在 Object 类中，这个方法将判断两个对象是否具有相同的引用。如果两个对象具有相同的引用，它们一定是相等的。从这点上看，将其作为默认操作也是合乎情理的。然而，对于多数类来说，这种判断并没有什么意义。例如，采用这种方式比较两个 PrintStream 对象是否相等就完全没有意义。然而，经常需要检测两个对象状态的相等性，如果两个对象的状态相等，就认为这两个对象是相等的。
+- 例如，如果两个雇员对象的姓名、薪水和雇佣日期都一样，就认为它们是相等的（在实际的雇员数据库中，比较 ID 更有意义。利用下面这个示例演示 equals 方法的实现机制）。
+```
+  class Employee{
+    ...
+    public boolean equals(Object otherObject){
+      // a quick test to see if the objects are identical
+      if (this == otherObject) return true;
+      
+      // must return false if the explicit parameter is null
+      if (otherObject == null) return false;
+      
+      // if the classes don't match, they can't be equal
+      if (getClass() != otherObject.getClass()) return false;
+      
+      // now we know otherObject is a non-null Employee
+      Employee other = (Employee) otherObject;
+      
+      // test whether the fields have identical values
+      return name.equals(other.name) && salary == other.salary && hireDay.equals(other.hireDay);
+    }
+  }
+```
+- 在子类中
+
 
 1. 编译器查看对象的声明类型和方法名。
 2. 编译器查看调用方法时提供的参数类型。——>重载解析（overloading resolution）
