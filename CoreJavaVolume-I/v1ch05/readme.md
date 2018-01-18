@@ -506,25 +506,137 @@
 > 将数组列表的存储容量削减到当前尺寸。
 >   
 ### 5.3.1 访问数组列表元素
+- 很遗憾，天下没有免费的午餐。数组列表自动扩展容量的便利性增加了访问元素语法的复杂程度。其原因是 ArrayList 类并不是 Java程序设计语言的一部分；它只是一个由某些人编写且被放在标准库中的一个实用类。
+- 使用 get 和 set 方法实现访问或改变数组元素的操作，而不使用人们喜爱的 [ ] 语法格式。
+- 例如，要设置第 i 个元素，可以使用：
+- ` staff.set(i, harry);`
+- 它等价于对数组 a 的元素赋值（数组的下标从 0 开始）
+- ` a[i] = harry;` 
+- 注意：只有 i 小于或等于数组列表的大小时，才能够调用 list.set(i, x)。例如，下面这段代码是错误的：
+
+```
+  ArrayList<Employee> list = new ArrayList<>(100); // capacity 100, size 0
+  list.set(0, x);                                  // no element 0 yet
+```
+- 使用 add 方法为数组添加新元素，而不要使用 set 方法，它只能替换数组中已经存在的元素内容。
+- 使用 下列格式获得数组列表的元素：
+- ` Employee e = staff.get(i);`
+- 等价于
+- ` Employee e = a[i]`;
+- 注意：没有泛型类时，原始的 ArrayList 类提供的get 方法别无选择只能返回 Object，因此，get 方法的调用者必须对返回值进行类型转换：
+- ` Employee e = (Employee) staff.get(i);`
+- 原始的 ArrayList 存在一定的危险性。它的add 方法和 set 方法允许接受任意类型的对象。对于下面这个调用
+- ` staff.set(i, new Date());`
+- 编译不会给出任何警告，只有在检索对象并试图对它进行类型转换时，才会发现有问题。如果使用 ArrayList<Employee> ，编译器就会检测到这个错误。
+- 下面这个技巧可以一举两得，既可以灵活地扩展数组，又可以方便地访问数组元素。首先，创建一个数组列表，并添加所有的元素。
+
+```
+  ArrayList<X> list = new ArrayList<>();
+  while(...){
+    x = ...;
+    list.add(x);
+  }
+```
+- 执行完上述操作后，使用 toArray 方法将数组列表元素拷贝到一个数组中。
+```
+  x[] a = new X[list.size()];
+  list.toArray(a);
+```
+- 除了在数组列表的尾部追加元素之外，还可以在数组列表的中间插入元素，使用带索引参数的 add 方法。
+```
+  int n = staff.size()/2;
+  staff.add(n, e);
+```
+- 为了插入一个新元素，位于 n 之后的所有元素都要向后移动一个位置。如果插入新元素后，数组列表的大小超过了容量，数组列表就会重新分派存储空间。
+- 同样地，可以从数组列表中间删除一个元素。
+- ` Employee e = staff.remove(n);`
+- 位于这个位置之后的所有元素都向前移动一个位置，并且数组的大小减 1.
+- 对数组实施插入和删除元素的操作效率比较低。对于小型数组来说，这一点不必担心。但如果数组存储的元素数比较多，又经常需要在中间位置插入、删除元素，就应该考虑使用链表了。
+- 可以使用 “for each” 循环遍历数组列表：
+```
+  for (Employee e : staff)
+    do something with e
+```
+- 这个循环和下列代码有相同的效果
+```
+  for (int i = 0; i < staff.size(); i++){
+    Employee e = staff.get(i);
+    do something with e
+  }
+```
+- [ArrayListTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/arrayList/ArrayListTest.java) 将 Employee [] 数组替换成了 ArrayList<Employee>。请注意下面的变化：
+- 不必指出数组的大小。
+- 使用 add 将任意多的元素添加到数组中。
+- 使用 size() 替换 length 计算元素的数目。
+- 使用 a.get(i) 替代 a[i] 访问元素。
+- API: java.util.ArrayList<T>    index 位置（必须介于 0 ~ size()-1 之间）
+- void set (int index, T obj)   
+> 设置数组列表指定位置的元素值，这个操作将覆盖这个位置的原有内容。       
+- T get (int index)
+> 获取指定位置的元素值
+- void add (int index, T obj)
+> 向后移动元素，以便插入元素
+- T remove (int index )  
+> 删除一个元素，并将后面的元素向前移动。被删除的元素由返回值返回。
+> 
+### 5.3.2 类型化 与 原始数组列表的兼容性
+- 鉴于兼容性的考虑，编译器在对类型转换进行检查之后，如果没有发现违反规则的现象，就将所有的类型化数组列表转换成原始 ArrayList 对象。在程序运行时，所有的数组列表都是一样的，即没有虚拟机中的类型参数。
+> 
+### 5.4 对象包装器与自动装箱
+- 有时，需要将int这样的基本类型转换为对象。所有的基本类型都有一个与之对应的类。例如，Integer 类对应基本类型int。通常，这些类称为**包装器（wrapper）**。这些包装器类拥有很鲜明的名字：Integer、Long、Float、Double、Short、Byte、Character、Void 和 Boolean （前6个类派生于公共的超类 Number）。对象包装器类是不可变的，即一旦构造了包装器，就不允许更改包装在其中的值。同时，对象包装器类还是final，因此不能定义它们的子类。
+- 假设想定义一个整型数组列表。而尖括号中的类型参数不允许是基本类型，也就是说，不允许写成 ArrayList<int>。这里就用到了 Integer 对象包装类。我们可以声明一个 Integer 对象的数组列表。
+- ` ArrayList<Integer> list = new ArrayList<>();`
+- 警告：由于每个值分别包装在对象中，所以 ArrayList<Integer> 的效率远远低于 int[] 数组。因此，应该用它构造小型集合，其原因是此时程序员操作的方便性要远比执行效率更加重要。
+-  Java SE 5.0 的另一个改进之处是更加便于添加或获得数组元素。下面这个调用
+- ` list.add(3);`
+- 将自动地变换成
+- ` list.add(Integer.valueOf(3));`
+- 这种变换被称为自动装箱（autoboxing）。
+- 相反地，当将一个 Integer 对象赋给一个int 值时，将会自动地拆箱。也就是说，编译器将下列语句：
+- ` int n = list.get(i);`
+- 翻译成  
+- ` int n = list.get(i).intValue;`  
+- 甚至在算术表达式中也能够自动地装箱和拆箱。例如，可以将自增操作符应用于一个包装器引用：
+```
+   Integer n = 3;
+   n++;
+``` 
+- 编译器将自动地插入一条对象拆箱的指令，然后进行自增运算，最后再将结果装箱。
+- 在很多情况下，容易有一种假象，即基本类型与他们的对象包装器是一样的，只是他们的相等性不同。== 运算符也可以应用于对象包装器对象，只不过检测的是对象是否指向同一个存储区域，因此，下面的比较**通常**不会成立：
+```
+  Integer a = 1000;
+  Integer b = 1000;
+  if (a == b) ...
+```
+- 然而，Java实现却有**可能（may）**让它成立。如果将经常出现的值包装到同一个对象中，这种比较就有可能成立。这种不确定的结果并不是我们所希望的。解决这个问题的办法是在两个包装器比较对象时调用 equals 方法。
+- 自动装箱规范要求 boolean、byte、char<=127，介于 -128 ~ 127之间的short 和 int 被包装到固定的对象中。例如，前面的例子中将 a 和 b 初始化为 100，对它们进行比较的结果一定成立。
+> 
+- 强调 ：装箱和拆箱是**编译器**认可的，而不是虚拟机。编译器在生成类的字节码时，插入必要的方法调用。虚拟机只是执行这些字节码。 
+- 使用数值对象包装器还有另外一个好处。可以将某些基本方法放置在包装器中，例如，将一个数字字符串转换成数值。
+- 要想将字符串转换成整型，可以使用
+- ` int x = Integer.parseInt(s);`  
+- 这里与Integer 对象没有任何关系，parseInt 是一个静态方法。但 Integer类是放置这个方法的一个好地方。
+- API: java.lang.Integer 1.0
+- ` int intValue()`
+> 以 int 的形式返回Integer 对象的值
+- ` static String toString(int i)`
+> 以 一个新String 对象的形式返回给定数值i 的十进制表示
+- ` static String toString(int i, int radix)`
+> 返回 数值i 的基于给定 radix 参数进制的表示
+- ` static int parseInt(String s)`
+> 返回 字符串s 表示的整型数值，给定字符串表示的是十进制的整数
+- ` static int parseInt(String s, int radix)`
+> 返回 字符串s 表示的整型数值，给定字符串是radix 参数进制的整数
+- ` static Integer valueOf(String s)`
+> 返回 用s表示的整型数值进行初始化的一个新 Integer对象，给定字符串表示的是十进制的整数 
+- ` static Integer valueOf(String s, int radix)` 
+> 返回 用s表示的整型数值进行初始化的一个新 Integer对象，给定字符串表示的是 radix参数 进制的整数   
+- API: java.text.NumberFormat 1.1
+- ` Number parse(String s)`  
+> 返回 数字值，假设给定的 String 表示了一个数值。
+>   
+### 5.5 参数数量可变的方法 
   
-
-### 泛型数组列表
-- ArrayList是一个采用**类型参数（type parameter）**的**泛型类（generic class）**。
-- 将Employee[] 数组替换成了 ArrayList<Employee>,请注意下面的变化:
-1. 不必指出数组的大小。
-2. 使用add 将任意多的元素添加到数组中。
-3. 使用size() 替代length 计算元素的数目。
-4. 使用a.get(i) 替代a[i] 访问元素。
-### 对象包装器与自动装箱
-- 有时，需要将int这样的基本类型转换为对象。
-- 所有的基本类型都有一个与之对应的类。通常，这些类称为**包装器（wrapper）**。
-- Integer、Long、Float、Double、Short、Byte、Character、Void 和 Boolean （前6个类派生于公共的超类 Number）
-> 对象包装器类是不可变的，即一旦构造了包装器，就不允许更改包装在其中的值。同时，对象包装器类还是final，因此不能定义它们的子类。
-- 自动装箱（autoboxing）
-> list.add(3); ——> list.add(Integer.valueOf(3));
-- 自动拆箱
-> int n = list.get(i);——> int n = list.get(i).intValue();
-
 ## 反射（reflect）
 > 反射库（reflection library）提供了一个非常丰富且精心设计的工具集，以便编写能够动态操纵Java代码的程序。
 > 这项功能被大量应用于JavaBeans中，她是Java组件的体系结构。
