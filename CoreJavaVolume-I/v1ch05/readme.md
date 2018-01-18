@@ -459,7 +459,54 @@
 > 以 Class 对象的形式返回这个类的超类信息。
 > 
 ### 5.3 泛型数组列表
-
+- 在许多程序设计语言中，特别是在 C++ 语言中，必须在编译时就确定整个数组的大小。程序员对此十分反感。
+- 在Java 中，情况就好多了。她允许在运行时确定数组的大小。
+```
+  int actualSize = ...;
+  Employee[] staff = new Employee[actualSize];
+```
+- 当然，这段代码并没有完全解决运行时动态更改数组的问题。一旦确定了数组的大小，改变它就不太容易了。在Java 中，解决这个问题最简单的方法是使用 Java中另外一个被称为 ArrayList 的类。它使用起来有点像数组，但在添加或删除元素时，具有自动调节数组容量的功能，而不需要为此编写任何代码。
+- ArrayList 是一个采用**类型参数（type parameter）**的**泛型类（generic class）**。下面声明和构造一个保存Employee 对象的数组列表：
+- ` ArrayList<Employee> staff = new ArrayList<Employee>();`
+- 两边都使用类型参数 Employee，这有些繁琐。Java7 中，可以省去右边的类型参数：
+- ` ArrayList<Employee> staff = new ArrayList<>();`
+- Java SE 5.0 以前的版本没有提供泛型类，而是有一个ArrayList 类，其中保存类型为 Object 的元素，它是“自适应大小”的集合。
+- 使用 add 方法可以将元素添加到数组列表中。例如：
+```
+  staff.add(new Employee("Harry Hacker",...));
+  staff.add(new Employee("Tony Tester",...));
+```
+- 数组列表管理着对象引用的一个内部数组。最终，数组的全部空间有可能被用尽。这就显示出数组列表的操作魅力了：如果调用add 且内部数组已经满了，数组列表就将自动地创建一个更大的数组，并将所有的对象从较小的数组中拷贝到较大的数组中。
+- 如果已经清楚或能够估计出数组可能存储的元素数量，就可以在填充数组之前调用 ensureCapacity 方法：
+- ` staff.ensureCapacity(100);`
+- 这个方法调用将分派一个包含 100 个对象的内部数组。然后调用100次add，而不用重新分派空间。
+- 另外，还可以把初始容量传递给 ArrayList 构造器：
+- ` ArrayList<Employee> staff = new ArrayList<>(100);`
+- 注意：分配数组列表，如下：
+```
+  new ArrayList<>(100);  // capacity is 100
+  new Employee[100];     // size is 100
+```
+- 数组列表的容量与数组的大小有一个非常重要的区别。如果为数组分配100 个元素的存储空间，数组就有了100 个空位置可以使用。而容量为 100个元素的数组列表只是拥有保存 100 个元素的潜力（实际上，重新分配空间的话，将会超过100 ），但是在最初，甚至完成初始化构造之后，数组列表根本就不含有任何元素。
+- size 方法将返回数组列表中包含的实际元素数目。例如： 
+- staff.size()
+- 将返回staff 数组列表的当前元素数量，它等价于数组a 的 a.length。
+- 一旦能够确认数组列表的大小不再发生变化，就可以调用 trimToSize 方法。这个方法将存储区域的大小调整为当前元素数量所需要的存储空间数目。垃圾回收器将回收多余的存储空间。
+- 一旦整理了数组列表的大小，添加新元素就需要花时间再次移动存储块，所以应该在确认不会添加任何元素时，再调用 trimToSize。
+- API: java.util.ArrayList<T>
+- ` ArrayList<T>()`
+- ` ArrayList<T>(int initialCapacity)`
+- ` boolean add(T obj)`
+> 在 数组列表的尾端添加一个元素。永远返回true 
+- ` int size()`
+> 返回 存储在数组列表中的当前元素数量。（这个值将小于或等于数组列表的容量。） 
+- ` void ensureCapacity(int capacity)`
+> 确保 数组列表在不重新分配存储空间的情况下就能够保存给定数量的元素。 
+- ` void trimToSize()`  
+> 将数组列表的存储容量削减到当前尺寸。
+>   
+### 5.3.1 访问数组列表元素
+  
 
 ### 泛型数组列表
 - ArrayList是一个采用**类型参数（type parameter）**的**泛型类（generic class）**。
