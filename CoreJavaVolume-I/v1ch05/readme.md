@@ -933,30 +933,49 @@
 - [CopyOfTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/arrays/CopyOfTest.java) 显示了两个扩展数组的方法。
 > 
 ### 5.7.6 调用任意方法
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- 在 C 和 C++ 中，可以从函数指针执行任意函数。从表面上看，Java 没有提供方法指针，即将一个方法的存储地址传给另外一个方法，以便第二个方法能够随后调用它。事实上，Java 的设计者曾说过：方法指针是很危险的，而且常常会带来隐患。他们认为Java 提供的 **接口（interface）**是一种更好的解决方法。然而，反射机制允许你调用任意方法。
+- 为了能够看到方法指针的工作过程，先回忆一下利用 Field 类的get 方法查看对象域的过程。与之类似，在 Method 类中有一个invoke 方法，它允许调用包装在当前 Method 对象中的方法，invoke 方法的签名是：
+- ` Object invoke (Object obj, Object... args)`
+- 第一个参数是隐式参数，其余的对象提供了显式参数。
+- 对于静态方法，第一个参数可以被忽略，即可以将它设置为 null。
+- 例如，假设用 m1 代表Employee 类的getName 方法，下面这条语句显示了如何调用这个方法：
+- ` String n = (String)m1.invode(harry);`
+- 如果返回类型是基本类型，invoke 方法会返回其包装器类型。假如，假设 m2 表示Employee 类的 getSalary 方法，那么返回对象实际上是一个 Double，必须相应地完成类型转换。可以使用自动拆箱将他转换为一个 double：
+- ` double s = (Double)m2.invoke(harry);`
+- 如何得到Method 对象呢？当然，可以通过调用 getDeclareMethods 方法，然后对返回的 Method 对象数组进行查找，直到发现想要的方法为止。也可以通过调用 Class 类中的getMethod 方法得到想要的方法。它与 getField 方法类似。getField 方法根据表示域名的字符串，返回一个Field 对象。然而，有可能存在若干个相同名字的方法，因此要格外小心，以确保能够准确地得到想要的那个方法。有鉴于此，还必须提供想要的方法的参数类型。getMethod 的签名是：
+- Method getMethod(String name, Class... parameterTypes)
+- 例如，下面说明了如何获得 Employee 类的 getName 方法 和 raiseSalary 方法的方法指针。
+```
+  Method m1 = Employee.class.getMethod("getName");
+  Method m2 = Employee.class.getMethod("raiseSalary",double.class);
+```
+- 到此为止，已经学习了使用 Method 对象的规则。
+- [MethodPointerTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/methods/MethodPointerTest.java) 是一个打印诸如 Math.sqrt、Math.sin 这样的数学函数值表的程序。
+- 当然，这段打印数学函数表格的代码与具体打印的数学函数无关。
+```
+  double dx = (to - from)/(n - 1);
+  for (double x = from; x <= to; x += dx ){
+    double y = (Double) f.invoke(null, x);
+    System.out.printf("%10.ff | %10.4f%n",x,y);
+  }
+```
+- 在这里，f 是一个Method类型的对象。由于正在调用的方法是一个静态方法，所以invoke 的第一个参数是 null.
+- 为了将 Math.sqrt 函数表格化，需要将f 设置为：
+- Math.class.getMethod("sqrt", double.class)
+- 这是Math 类中的一个方法，通过参数向它提供了一个函数名 sqrt 和一个 double 类型的参数。
+- 另外，invoke 的参数和返回值必须是 Object 类型的。这就意味着必须进行多次的类型转换。这样做将会使编译器错过检查代码的机会。因此，等到测试阶段才会发现这些错误，找到并改正它们将会更加困难。不仅如此，使用反射获得方法指针的代码要比仅仅直接调用方法明显慢一些。
+- 有鉴于此，建议仅在必要的时候才使用 Method 对象，而最好使用接口和内部类。特别要重申：建议 Java 开发者不要使用 Method 对象的回调功能。使用接口进行回调会使得代码的执行速度更快，更易于维护。
+- API: java.lang.reflect.Methode 1.1
+- public Object invoke(Object implicitParameter, Object[] explicitParamenters)
+> 
+### 5.8 继承设计的技巧
+- 1）将公共操作和域放在超类
+- 2）不要使用受保护的域
+- 3）使用继承实现 “is-a”关系
+- 4）除非所有的方法都有意义，否则不要使用继承
+- 5）在覆盖方法时，不要改变预期行为
+- 6）使用多态，而非类型信息
+- 7）不要过多地使用反射
 
 
 
