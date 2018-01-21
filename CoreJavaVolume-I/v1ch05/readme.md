@@ -697,15 +697,221 @@
 > 返回 枚举常量在 enum 声明中的位置，位置从 0 开始计数
 - int compareTo(E other)  
 > 如果 枚举常量出现在 other 之前，则返回一个负数；如果 this==other，则返回 0；否则，返回正值。
-
-## 反射（reflect）
-> 反射库（reflection library）提供了一个非常丰富且精心设计的工具集，以便编写能够动态操纵Java代码的程序。
-> 这项功能被大量应用于JavaBeans中，她是Java组件的体系结构。
-- 能够分析类能力的程序称为反射（reflective）。反射机制的功能及其强大，可以用来：
+> 
+  
+## 5.7 反射（reflect）
+- **反射库（reflection library）**提供了一个非常丰富且精心设计的工具集，以便编写能够动态操纵Java代码的程序。这项功能被大量应用于JavaBeans中，她是Java组件的体系结构（有关 JavaBeans 的详细内容在卷 2 中）。使用反射，Java 可以支持 Visual Basic 用户习惯使用的工具。特别是在设计或运行中添加新类时，能够快速地应用开发工具动态地查询新添加类的能力。
+- 能够分析类能力的程序称为**反射（reflective）**。反射机制的功能及其强大，在下面可以看到，反射机制可以用来：
 1. 在运行中分析类的能力。
 2. 在运行中查看对象，例如，编写一个toString方法供所有类使用。
 3. 实现通用的数组操作代码。
 4. 利用Method 对象，这个对象很像C++ 中的函数指针。
+- 反射是一种功能强大且复杂的机制。使用它的主要人员是工具构造者，而不是应用程序员。
+### 5.7.1 Class 类
+- 在程序运行期间，Java 运行时系统始终为所有的对象维护一个被称为运行时的类型标识。这个信息跟踪每个对象所属的类。虚拟机利用运行时类型信息选择相应的方法执行。
+- 然而，可以通过专门的 Java 类访问这些信息。保存这些信息的类被称为 Class，这个名字很容易让人混淆。Object 类中的 getClass() 方法返回一个Class 类型的实例。
+```
+  Employee e;
+  ...
+  Class cl = e.getClass();
+```
+- 如同用一个 Employee 对象表示一个特定的雇员属性一样，一个Class 对象将表示一个特定类的属性。最常用的Class 方法是 getName。这个方法将返回类的名字。例如，下面这条语句：
+- ` System.out.println(e.getClass().getName() + " " + e.getName());`
+- 如果 e 是一个雇员，则打印 Employee Harry Hacker
+- 如果 e 是一个经理，则打印 Manager Harry Hacker
+- 如果类在一个包里，包的名字也作为类名的一部分：
+```
+  Date d = new Date();
+  Class cl = d.getClass();
+  String name = cl.getName();  // name is set to "java.util.Date"
+```
+- 还可以调用静态方法 forName 获得类名对应的 Class 对象。
+```
+  String name = "java.util.Date";
+  Class cl = Class.forName(className);
+```
+- 如果类名保存在字符串中，并可在运行中改变，就可以使用这个方法。当然，这个方法只有在 className 是类名或接口名时才能执行。否则，forName 方法将抛出一个 checked exception（已检查异常）。无论何时使用这个方法，都应该提供一个 **异常处理器（exception handler）。**
+- 在启动时，包含main 方法的类被加载。它会加载所有需要的类。这些被加载的类又要加载它们需要的类，以此类推。对于一个大型的应用程序来说，这将会消耗很多时间，用户因此会感到不耐烦。可以使用下面这个技巧给用户一种启动速度比较快的幻觉。不过，要确保包含 main 方法的类没有显式地引用其他的类。首先，显式一个启动画面；然后，通过调用 Class.forName 手工地加载其他的类。
+- 获得 Class 类对象的第三种方法非常简单。如果 T 是任意的Java类型，T.class 将代表匹配的类对象。例如：
+```
+  Class cl1 = Date.class;   // if you import java.util.*;
+  Class cl2 = int.class;
+  Class cl3 = Double[].class;
+```
+- 注意，一个Class 对象实际上表示的是一个类型，而这个类型未必一定是一种类。例如，int 不是类，但 int.class 是一个Class 类型的对象。
+- 虚拟机为每个类型管理一个 Class 对象。因此，可以利用 == 运算符实现两个类对象比较的操作。例如
+- ` if (e.getClass() == Employee.class)...`
+- 还有一个很有用的方法 newInstance()，可以快速用来创建一个类的实例。例如，
+- ` e.getClass().newInstance();`
+- 创建了一个与 e 相同类类型的实例。newInstance 方法调用默认的构造器（没有参数的构造器）初始化新创建的对象。如果这个类没有默认的构造器，就会抛出一个异常。
+- 将 forName 与 newInstance 配合使用，可以根据存储在字符串中的类名创建一个对象。
+```
+  String s = "java.util.Data";
+  Object m = Class.forName(s).newInstance();
+```
+> 
+### 5.7.2 捕获异常
+- 当程序运行过程中发生错误时，就会“抛出异常”。抛出异常比终止程序要灵活得多，这是因为可以提供一个“捕获”异常的**处理器（handler）**对异常情况进行处理。
+- 如果没有提供处理器，程序就会终止，并在控制台上打印出一条信息，其中给出了异常的类型。
+- 异常有两种类型：**未检查**异常和**已检查**异常。对于已检查异常，编译器将会检查是否提供了处理器。然而，有很多常见的异常，例如，访问null 引用，都属于未检查异常。编译器不会查看是否为这些错误提供了处理器。毕竟，应该精心编写代码来避免这些错误的发生，而不要将精力花在编写异常处理器上。
+- 并不是所有的错误都是可以避免的。如果竭尽全力还是发生了异常，编译器就要求提供一个处理器。 Class.forName 方法就是一个抛出已检查异常的例子。后面有几种异常处理的策略。现在，只介绍一下如何实现最简单的处理器。
+- 将可能抛出已检查异常的一个或多个方法调用代码放在 try 块中，然后在 catch 字句中提供处理器代码。
+```
+  try{
+    statements that might throw exceptions
+  } catch (Exception e){
+    handler action
+  }
+```
+- 下面是一个示例：
+```
+  try{
+    String name = ...;  // get class name
+    Class cl = Class.forName(name);  // might throw exception
+    do something with cl
+  } catch ( Exception e){
+    e.printStackTrace();
+  }
+```
+- 如果类名不存在，则将跳过 try 块中的剩余代码，程序直接进入 catch 子句（这里，利用 Throwable 类的 printStackTrace 方法打印栈的轨迹。 Throwable 是 Exception 类的超类）。如果 try 块中没有抛出任何异常，那么会跳过 catch 子句的处理器代码。
+- 对于已检查异常，只需要提供一个异常处理器。可以很容易地发现会抛出已检查异常的方法。如果调用了一个抛出已检查异常的方法，而又没有提供处理器，编译器就会给出错误报告。
+- API: java.lang.Class 1.0
+- static Class forName(String className)
+> 返回描述类名为 className 的 Class 对象
+- Object newInstance()
+> 返回这个类的一个新实例
+- API: java.lang.reflect.Constructor 1.1
+- Object newInstance(Object[] args)
+> 构造一个这个构造器所属类的新实例
+- API: java.lang.Throwable 1.0
+- void printStackTrace()
+> 将 Throwable 对象和栈的轨迹输出到标准错误流。
+> 
+
+### 5.7.3 利用反射分析类的能力
+#### 反射机制最重要的内容——检查类的结构
+- 在 java.lang.reflect 包中有三个类 Field、 Method 和 Constructor 分别用于描述类的 域、方法 和 构造器。这三个类都有一个叫做 getName 的方法，用来返回项目的名称。 Field 类有一个getType 方法，用来返回描述域所属类型的 Class 对象。Method 和 Constructor 类有能够报告参数类型的方法，Method 类还有一个可以报告返回类型的方法。这三个类还有一个叫做 getModifiers 的方法，它将返回一个整型数值，用不同的位开关描述public 和 static 这样的修饰符使用状况。另外，还可以利用 java.lang.reflect 包中的 Modifier 类的静态方法分析 getModifiers 返回的整型数值。例如，可以使用 Modifier 类中的 isPublic、isPrivate 或 isFinal 判断方法或构造器是否是 public、private 或 final 。我们需要做的全部工作就是调用 Modifier 类的响应方法，并对返回的整型数值进行分析，另外，还可以利用 Modifier.toString 方法将 修饰符打印出来。
+- Class 类中的 getFields    、getMethods    和 getConstructors 方法将分别返回类提供的 public域、方法 和 构造器数组，其中包括超类的公有成员。
+- Class 类中的 getDeclareFields、getDeclareMethods 和 getDeclareConstructors 方法将分别返回类中声明的全部域、方法和构造器，其中包括私有和受保护成员，但不包括超类的成员。
+- [ReflectionText.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/reflection/ReflectionTest.java) 显示了如何打印一个类的全部信息方法。这个程序将提醒用户输入类名，然后输出类中所有的方法和构造器的签名，以及全部域名。
+- 值得注意的是：这个程序可以分析Java 解释器能够加载的任何类，而不仅仅是编译程序时可以使用的类。
+- API: java.lang.Class 1.0
+- Field[] getFields()
+- Field[] getDeclaredFields()
+> getFields 方法将返回一个包含 Field 对象的数组，这些对象记录了这个类或其超类的公有域。getDeclaredFiedld 方法也将返回包含 Field 对象的数组，这些对象记录了这个类的全部域。如果类中没有域，或者 Class 对象描述的类型是基本类型或数组类型，这些方法将返回一个长度为0的数组。
+- Method[] getMethods()
+- Method[] getDeclaredFields()
+> 返回包含 Method 对象的数组：getMethods 将返回所有的公有方法，包括从超类继承来的公有方法；getDeclaredMethods 返回这个类或接口的全部方法，但不包括由超类继承了的方法。
+- Constructor[] getConstructors()
+- Constructor[] getDeclaredConstructors()
+> 返回包含Constructor 对象的数组，其中包含了Class 对象所描述的类的所有公有构造器（getConstructors） 或 所有构造器（getDeclaredConstructors）。
+> 
+- API: java.lang.reflect.Field
+- API: java.lang.reflect.Method
+- API: java.lang.reflect.Constructor
+- Class getDeclaringClass()
+> 返回一个用于描述类中定义的构造器、方法或域的 Class对象
+- Class[] getExceptionTypes()（在Constructor 和 Method 类中）
+> 返回一个用于描述方法抛出的异常类型的Class 对象数组
+- int getModifiers()
+> 返回一个用于描述构造器、方法或域 的修饰符的整型数值。使用 Modifier 类中的这个方法可以分析这个返回值
+- String getName()
+> 返回一个用于描述构造器、方法或域名的字符串
+- Class[] getParameterTypes()（在 Constructor 和 Method 类中）
+> 返回一个用于描述参数类型的 Class 对象数组
+- Class getReturnType()（在Method 类中）
+> 返回一个用于描述返回类型的 Class 对象
+> 
+- API: java.lang.reflect.Modifier 1.1 
+- static String toString( int modifiers)
+> 返回对应 modifiers 中位设置的修饰符的字符串表示。
+- static boolean isAbstract(int modifiers)
+- static boolean isFinal(int modifiers)
+- static boolean isInterface(int modifiers)
+- static boolean isNative(int modifiers)
+- static boolean isPrivate(int modifiers)
+- static boolean isProtected(int modifiers)
+- static boolean isPublic(int modifiers)
+- static boolean isStatic(int modifiers)
+- static boolean isStrict(int modifiers)
+- static boolean isSynchronized(int modifiers)
+- static boolean isVolatile(int modifiers)
+> 这些方法将检测方法名中对应的修饰符在 modifiers 值中的位。
+### 5.7.4 在运行时使用反射分析对象
+- 如何查看任意对象的数据域名称和类型：
+- 获得对应的Class 对象。
+- 通过Class 对象调用 getDeclaredFields
+- 本节将进一步查看数据域的实际内容。当然，在编写程序时，如果知道想要查看的域名和类型，查看指定的域是一件很容易的事情。而利用反射机制可以查看在编译时还不清楚的对象域。
+- 查看对象域的关键方法是Field 类中的get 方法。如果 f 是一个Field 类型的对象（例如，通过 getDeclaredFields 得到的对象），obj 是某个包含 f域的类的对象，f.get(obj) 将返回一个对象，其值为 obj 域的当前值。这样说起来有点抽象，看一看下面这个示例：
+```
+  Employee harry = new Employee("Harry Hacker", 35000, 10, 1, 1989);
+  Class cl = harry.getClass();
+    // the class object representing Employee
+  Field f = cl.getDeclaredField("name");
+    // the name field of the Employee class
+  Object v = f.get(harry);
+    // the value of the name field of the harry object,i.e., the String object "Harry Hacker"
+```
+- 实际上，这段代码存在一个问题。由于name 是一个私有域，所以 get 方法将会抛出一个 IllegalAccessException。只有利用 get方法才能得到可访问域的值。除非拥有访问权限，否则Java 安全机制只允许查看任意对象有哪些域，而不允许读取它们的值。
+- 反射机制的默认行为受限于 Java的访问控制。然而，如果一个 Java程序没有受到安全管理器的机制，就可以覆盖访问控制。为了达到这个目的，需要调用 Field、Method 或 Constructor 对象的 setAccessible 方法。例如，
+- ` f.setAccessible(true);`   // now OK to call f.get(harry);
+- setAccessible 方法是 AccessibleObject 类中的一个方法，它是 Field、Method 和 Constructor 类的公共超类。这个特性是为了调试、持久存储和相似机制提供的。稍后将利用它编写一个通用的 toString 方法。
+- get 方法还有一个需要解决的问题。name 域是一个String，因此把它作为 Object 返回没有什么问题。但是，假定我们想要查看 salary 域，它属于double 类型，而 Java中数值类型不是对象。要想解决这个问题，可以使用 Field类中的 getDouble 方法，也可以调用 get方法，此时，反射机制将会自动地将这个域值打包到相应的对象包装器中，这里讲打包成 Double。
+- 当然，可以获得就可以设置。调用 f.set(obj, value) 可以将obj 对象的f 域设置成新值。
+- 程序清单5-14 [ObjectAnalyzerTest](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/objectAnalyzer/ObjectAnalyzerTest.java) 显示了如何编写一个可供任意类使用的通用 toString 方法。其中使用 getDeclaredFields 获得所有的数据域，然后使用 setAccessible 将所有的域设置为可访问的。对于每个域，获得了名字和值。递归调用 toString 方法，将每个值转换成字符串。
+- 循环引用将有可能导致无限递归。因此，[ObjectAnalyzer.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/objectAnalyzer/ObjectAnalyzer.java) 将记录已经被访问过的对象。另外，为了能够查看数组内部，需要采用一种不同的方式。
+- 还可以使用通用的 toString 方法实现自己类中的toString 方法，如下：
+```
+  public String toString(){
+    return new ObjectAnalyzer().toString(this);
+  }
+```
+- 这是一种公认的提供toString 方法的手段，在编写程序时会发现，它是非常有用的。
+- API: java.lang.reflect.AccessibleObject
+- void setAccesssible(boolean flag)
+> 为反射对象设置可访问标志。flag 为 true 表明屏蔽 Java语言的访问检查，使得对象的私有属性也可以被查询和设置。
+- boolean is Accessible()
+> 返回反射对象的可访问标志
+- static void setAccessible(AccessibleObject[] array, boolean flag)
+> 是一种设置对象数组可访问标志的快捷方法
+- API: java.lang.Class
+- Field getField(String name)
+- Field[] getField()
+> 返回指定名称的公有域、或 包含所有域的数组。
+- Field getDeclaredField(String name)
+- Field[] getDeclaredFields()
+> 返回类中声明的给定名称的域，或者包含声明的全部域的数组
+- API: java.lang.reflect.Field
+- Object get(Object obj)
+> 返回 obj 对象中用 Field 对象表示的域值
+- void set(Object obj, Object newValue)
+> 用一个新值设置 Obj对象中 Field 对象表示的域。
+> 
+### 5.7.5 使用反射编写泛型数组代码
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
