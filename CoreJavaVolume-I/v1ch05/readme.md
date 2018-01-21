@@ -636,8 +636,68 @@
 > 返回 数字值，假设给定的 String 表示了一个数值。
 >   
 ### 5.5 参数数量可变的方法 
-  
-  
+- 在 JavaSE 5.0 以前的版本中，每个Java方法都有固定数量的参数。然而，现在的版本提供了可以用可变的参数数量调用的方法。
+- 例如：  printf。
+- ` System.out.printf("%d", n);`
+- 和 
+- ` System.out.printf("%d %s", n, "widgets");`
+- 在上面两条语句中，尽管一个调用包含两个参数，另一个调用包含三个参数，但它们调用的都是同一个方法。printf 方法是这样定义的：
+```
+  public class PrintStream{
+    public PrintStream printf(String fmt, Object... args){
+      return format(fmt, args);
+    };
+  }
+```  
+- 这里的省略号 ... 是Java代码的一部分，它表明这个方法可以接收任意数量的对象（除 fmt 参数之外）。
+- 实际上，printf 方法接收两个参数，一个是格式字符串，另一个是 Object[] 数组，其中保存着所有的参数（如果调用者提供的是整型数组或者其他基本类型的数组，自动装箱功能将把它们转换成对象）。现在将扫描 fmt 字符串，并将第 i 个格式说明符与args[i]的值匹配起来。
+- 用户自己也可以定义可变参数的方法，并将参数指定为任意类型，甚至是基本类型。下面是一个简单的实例：其功能为计算若干个数值的最大值。
+```
+  public static double max(double... values){
+    double largest = Double.MIN_VALUE;
+    for (double v : values) if (v > largest) largest = v;
+    return largest;
+  }
+```
+- 可以像下面这样调用这个方法：
+- ` double m = max(3.1, 40.4, -5);`
+- 编译器将 new double[]{3.1, 40.4, -5} 传递给 max 方法。
+
+### 5.6 枚举类
+- 定义枚举类型。下面是一个典型的例子：
+- ` public enum Size { SMALL, MEDIUM, LARGE, EXTRA_LARGE}; `
+- 实际上，这个声明定义的类型是一个类，它刚好有四个实例。
+- 在比较两个枚举类型的值时，永远不需要调用equals ，而直接使用 “==” 就可以了。
+- 如果需要的话，可以在枚举类型中添加一些构造器、方法和域。当然，构造器只是在构造枚举常量的时候被调用。下面是一个示例：
+```
+  public enum Size{
+    SMALL("S"), MEDIUM("M"), LARGE("L"), EXTRA_LARGE("XL");
+    
+    private String abbreviation;
+    
+    private Size(String abbreviation){ this.abbreviation = abbreviation; }
+    public String getAbbreviation(){ return abbreviation;}
+  }
+```
+- 所有的枚举类型都是Enum 类的子类。它们继承了这个类的许多方法。其中最有用的一个是 toString，这个方法能够返回枚举类的常量名。例如，Size.SMALL.toString() 将返回字符串 “SMALL”。
+- toString 的逆方法是静态方法 valueOf。例如：语句
+- ` Size s = Enum.valueOf(Size.class, "SMALL");`
+- 将 s 设置成 Size.SMALL。
+- 每个枚举类型都有一个静态的 values 方法，它将返回一个包含全部枚举值的数组。例如，如下调用
+- ` Size[] values = Size.values();`
+- 返回包含元素 Size.SMALL, Size,MEDIUM, Size.LARGE 和 Size.EXTRA_LARGE 的数组。
+- ordinal 方法返回 enum 声明中枚举常量的位置，位置从 0 开始计数。例如：Size.MEDIUM.ordinal() 返回 1。
+- [EnumTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/enums/EnumTest.java) 演示枚举类型的工作方式。
+- API: java.lang.Enum<E> 5.0
+- static Enum valueOf(Class enumClass , String name)
+> 返回 指定名字、给定类的枚举常量
+- String toString()
+> 返回 枚举常量名 
+- int ordinal()
+> 返回 枚举常量在 enum 声明中的位置，位置从 0 开始计数
+- int compareTo(E other)  
+> 如果 枚举常量出现在 other 之前，则返回一个负数；如果 this==other，则返回 0；否则，返回正值。
+
 ## 反射（reflect）
 > 反射库（reflection library）提供了一个非常丰富且精心设计的工具集，以便编写能够动态操纵Java代码的程序。
 > 这项功能被大量应用于JavaBeans中，她是Java组件的体系结构。
