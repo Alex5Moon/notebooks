@@ -888,12 +888,51 @@
 > 用一个新值设置 Obj对象中 Field 对象表示的域。
 > 
 ### 5.7.5 使用反射编写泛型数组代码
-
-
-
-
-
-
+- java.lang.reflect 包中的 Array 类允许动态地创建数组。例如，将这个特性应用到 Array 类中的 copyOf 方法实现中，这个方法用于扩展已经填满的数组。
+```
+  Employee[] a = new Employee[100];
+  ...
+  // array is full
+  a = Arrays.copyOf(a, 2*a.length);
+```
+- 如何编写这样一个通用的方法？正好能够将 Employee[] 数组转换为 Object [] 数组，这让人感觉很有希望。下面进行第一次尝试。
+```
+  public static Object[] badCopyOf(Object[] a, int newLength){ // not useful
+    Object[] newArray = new Object[newLength];
+    System.arraycopy(a, 0, newArray, 0, Math.min(a.length, newLength));
+    return newArray;
+  }
+```
+- 然而，在实际**使用**结果数组时会遇到一个问题。这段代码返回的数组类型是对象数组（Object[]）类型，这是由于使用下面这行代码创建的数组：
+- ` new Object[newLength]`
+- 一个对象数组不能转换成雇员数组（Employee[]）。如果这样做，则在运行时 Java 将会产生 ClassCastException 异常。前面已经看到，Java 数组会记住每个元素的类型，即创建数组时 new 表达式中使用的元素类型。将一个 Employee[] 临时转换成 Object[] 数组，然后再把它转换回来是可以的，但一个从开始就是 Object[] 的数组却永远不能转换成 Employee[] 数组。为了编写这类通用的数组代码，需要能够创建与原数组类型**相同**的新数组。为此，需要 java.lang.reflect 包中 Array 类的一些方法。其中最关键的是 Array类中静态方法 newInstance，它能够构造新数组。在调用它时必须提供两个参数，一个是数组的元素类型，一个是数组的长度。
+- ` Object newArray = Array.newInstance(componentType, newLength);`
+- 为了能够实际地运行，需要获得新数组的长度和元素类型。
+- 可以通过调用 Array.getLength(a) 获得数组的长度，也可以通过 Array 类的静态 getLength 方法的返回值得到任意数组的长度。而要获得新数组元素类型，就需要进行以下工作：
+- 1）首先获得a 数组的类对象
+- 2）确认它是一个数组
+- 3）使用 Class 类（只能定义表示数组的类对象）的 getComponentType 方法确定对应的类型。
+- 为什么 getLength 是 Array 的方法，而 getComponentType 是 Class 的方法呢？我们也不清楚。反射方法的分类有时确实显得有点古怪。
+```
+  public static Object goodCopyOf(Object a, int newLength){
+    Class cl = a.getClass();
+    if (!cl.isArray()) return null;
+    Class componentType = cl.getComponentType();
+    int length = Array.getLength(a);
+    Object newArray = Array.newInstance(componentType, newLength);
+    System.arraycopy(a, 0, newArray, 0, Math.min(length, newLength));
+    return newArray;
+  }
+```
+- 请注意，这个 CopyOf 方法可以用来扩展任意类型的数组，而不仅是对象数组。
+```
+  int[] a = {1, 2, 3, 4, 5};
+  a = (int[])goodCopyOf(a, 10);
+```
+- 为了能够实现上述操作，应该将 goodCopyOf 的参数声明为 Object 类型，而不要声明为对象型数组（Object[]）。整型数组类型 int[] 可以被转换成 Object，但不能转换成对象数组。
+- [CopyOfTest.java](https://github.com/Alex5Moon/notebooks/blob/master/CoreJavaVolume-I/v1ch05/arrays/CopyOfTest.java) 显示了两个扩展数组的方法。
+> 
+### 5.7.6 调用任意方法
 
 
 
