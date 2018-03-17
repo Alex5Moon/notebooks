@@ -8,3 +8,17 @@
 - 在测试期间，需要进行大量的检测以验证程序操作的正确性。然而这些检测可能非常耗时，在测试完成后也不必保留它们，因此，可以将这些检测删掉，并在其他测试需要时将他们粘贴回来，这是一件很乏味的事情。本章的第 2 部分将介绍如何使用断言来有选择地启用检测。
 - 当程序出现错误时，并不总是能够与用户或终端进行沟通。此时，可能希望记录下出现的问题，以备日后进行分析。本章的第 3 部分将讨论标准 Java 日志框架。
 - 最后，介绍如何获得一个正在运行的 Java应用程序的有用信息，以及如何使用IDE 中的调试器的技巧。
+
+#### [11.1 处理错误](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch11/01.md)
+
+#### [11.2 捕获异常](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch11/02.md)
+
+#### [11.3 使用异常机制](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch11/03.md)
+
+#### [11.4 使用断言](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch11/04.md)
+
+#### [11.5 记录日志](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch11/05.md)
+
+#### [11.6 调试技巧](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch11/06.md)
+
+#### [11.8 使用调试器](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch11/08.md)
