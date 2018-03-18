@@ -4,10 +4,10 @@
 
 #### [13.1 集合接口](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch13/01.md)
 
-#### [13.2 具体的集合](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch13/01.md)
+#### [13.2 具体的集合](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch13/02.md)
 
-#### [13.3 集合框架](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch13/01.md)
+#### [13.3 集合框架](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch13/03.md)
 
-#### [13.4 算法](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch13/01.md)
+#### [13.4 算法](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch13/04.md)
 
-#### [13.5 遗留的集合](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch13/01.md)
+#### [13.5 遗留的集合](https://github.com/lu666666/notebooks/blob/master/CoreJavaVolume-I/v1ch13/05.md)
