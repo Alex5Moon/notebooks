@@ -1,0 +1,18 @@
+create table EMP
+(
+  EMPNO    NUMBER(5),
+  ENAME    VARCHAR2(30),
+  JOB      VARCHAR2(30),
+  MGR      NUMBER(5),
+  HIREDATE DATE,
+  SAL      NUMBER(5),
+  COMM     NUMBER(5),
+  DEPTNO   NUMBER(3)
+);
+
+create table DEPT
+(
+  DEPTNO NUMBER(3),
+  DNAME  VARCHAR2(30),
+  LOC    VARCHAR2(30)
+);
