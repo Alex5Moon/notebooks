@@ -63,7 +63,62 @@ select deptno,
        count(1) over (partition by deptno ) cnt 
   from emp;                  
  
--- 6.11 
+-- 6.11 将分隔数据转化为多值 in 列表
+-- Q：已经有了分隔数据，想要将其转换为where子句in列表中的项目。  '7654,7698,7782,7788'
+-- MySQL 通过遍历传递给 in 列别的字符串，可以很轻松地将其转换为若干行：
+select empno,ename,sal,deptno 
+  from emp 
+ where empno in (
+       select substring_index(
+              substring_index(list.vals,',',iter.pos),',',-1) empno 
+         from (select id pos from t10 ) iter,
+              (select '7654,7698,7782,7788' as vals from t1 ) list 
+        where iter.pos <= 
+              (length(list.vals)-length(replace(list.vals,',','')))+1
+              ) x          
+
+-- Oracle 通过遍历传递给in列表的字符串，可以很轻松地将其转换为若干行。这里函数 rownum、substr 和 instr 
+select empno,ename,sal,deptno 
+  from emp 
+ where empno in (
+       select rtrim(
+              substr(emps,
+               instr(emps,',',1,iter.pos)+1,
+               instr(emps,',',1,iter.pos+1)-
+               instr(emps,',',1,iter.pos)),',') emps 
+         from (select ','||'7654,7698,7782,7788'||',' emps from t1) csv,  
+              (select rownum pos from emp ) iter 
+        where iter.pos <= ((length(csv.emps)-length(replace(csv.emps,',')))/length(','))-1)                                                                    
+
+-- 6.12 按字母顺序排列字符串
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
  
