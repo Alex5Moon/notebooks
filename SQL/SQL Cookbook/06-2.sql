@@ -91,6 +91,34 @@ select empno,ename,sal,deptno
         where iter.pos <= ((length(csv.emps)-length(replace(csv.emps,',')))/length(','))-1)                                                                    
 
 -- 6.12 按字母顺序排列字符串
+-- Q：对表中的字符串，按照字母顺序排列其中的各个字符。
+-- Oracle 使用 sys_connect_by_path 允许以迭代方式构建一张列表
+select old_name, new_name 
+  from (
+  select old_name, replace(sys_connect_by_path(c, ' '),' ') new_name 
+    from ( 
+    select e.ename old_name,
+           row_number() over (partition by e.ename order by substr(e.ename,iter.pos,1)) rn,
+           substr(e.ename,iter.pos,1) c
+      from emp e,
+           (select rownum pos from emp) iter 
+     where iter.pos <= length(e.ename) 
+     order by 1 
+         ) x
+   start with rn = 1                     
+   connect by prior rn = rn-1 and prior old_name = old_name 
+       )
+ where  length(old_name) = length(new_name);       
+
+-- MySQL  使用 group_concat 函数，该函数不仅将构成姓名的字符连接起来，还对它们进行排序。
+select ename,group_concat(c order by c separator '') 
+  from (
+  select ename, substr(a.ename,iter.pos,1) c
+    from emp a  
+         (select id pos from t10 ) iter 
+   where iter.pos <= length(a.ename) 
+       ) x 
+group by ename;
 
 
 
