@@ -120,6 +120,63 @@ select ename,group_concat(c order by c separator '')
        ) x 
 group by ename;
 
+-- 6.13 判别可作为数值的字符串
+-- Q：表中的某列已经定义为字符类型数据，遗憾的是，这些行中既有数值数据又有字符数据。
+create view v_6_13 as 
+    select  replace(mixed,' ','') as mixed  from 
+     ( select substr(ename,1,2)||cast(deptno as char(4))||substr(ename,3,2) as mixed
+         from emp 
+        where deptno = 10 
+       union all 
+       select cast(empno as char(4)) as mixed
+         from emp
+        where deptno = 20  
+       union all
+       select ename as mixed
+         from emp 
+        where deptno = 30 )  x   ;
+
+select * from v_6_13;        
+        
+-- MySQL 
+
+-- Oracle 
+select case 
+         when replace(translate(x.mixed,'0123456789','0000000000'),'0') is not null 
+           then 
+             replace(
+        translate(x.mixed,replace(translate(x.mixed,'0123456789','0000000000'),'0'),rpad('#',length(x.mixed),'#')),'#')
+         else
+           x.mixed
+         end  as numb   
+  from v_6_13 x
+ where instr(translate(x.mixed,'0123456789','0000000000'),'0')>0 ;
+
+-- 6.14 提取第n个分隔的子串
+-- Q：从字符串中提取一个指定的、由分隔符隔开的子字符串
+create view v_6_14 
+as select 'mo,larry,curly' as name from t1 
+union all
+   select 'tina,gina,jaunita,regina,leena' as name from t1;
+
+select * from v_6_14;
+-- 要取出每行中第二个姓名
+select substr(substr(x.name,instr(x.name,',')+1),0,instr(substr(x.name,instr(x.name,',')+1),',')-1) from v_6_14 x;
+
+-- 6.15 分解 IP 地址
+-- Q：将一个IP地址字段分解到列中，考虑下面的IP地址
+-- 111.22.3.4 
+select substr(x.ip,1,instr(x.ip,'.')-1)  as a,
+       substr(x.ip,instr(x.ip,'.')+1,
+                   instr(x.ip,'.',1,2)-instr(x.ip,'.')-1) as b,
+       substr(x.ip,instr(x.ip,'.',1,2)+1,
+                   instr(x.ip,'.',1,3)-instr(x.ip,'.',1,2)-1) as c,
+       substr(x.ip,instr(x.ip,'.',1,3)+1) as d                               
+  from (select '111.22.3.4' as ip from dual ) x 
+
+select instr(x.ip,'.'),instr(x.ip,'.',1,1),instr(x.ip,'.',1,2),instr(x.ip,'.',1,3),x.ip 
+  from (select '111.22.3.4' as ip from dual ) x  
+
 
 
 
