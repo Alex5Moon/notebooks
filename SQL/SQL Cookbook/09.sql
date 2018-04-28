@@ -94,6 +94,45 @@ select rownum qtr,
  where rownum <=4 ;
 
 -- 9.9 确定某个给定季度的开始日期和结束日期
+-- Q：对于 yyyyq 格式的年和季度信息，返回该季度的开始日期和结束日期
+
+-- Oracle 使用 substr，返回内联视图 x 中的年，使用 mod 函数确定要查询的季度
+select add_months(q_end,-2) q_start,
+       last_day(q_end) q_end 
+  from (
+       select to_date(substr(yrq,1,4)||mod(yrq,10)*3,'yyyymm') q_end 
+         from (
+              select 20051 yrq from dual union all 
+              select 20052 yrq from dual union all
+              select 20053 yrq from dual union all
+              select 20054 yrq from dual 
+         ) x
+  ) y;
+  
+-- MySQL
+
+-- 9.10 填充丢失的日期 
+
+-- 9.11 按照给定的时间单位进行查找
+
+-- 9.12 使用日期的特殊部分比较记录 
+-- Q：查找聘用日期月份和周内日期都相同的员工
+
+-- 9.13 识别重叠的日期范围 
+-- Q：查找员工在老工程结束之前就开始新工程的所有实例
+
+
+
+
+
+
+
+
+
+
+
+  
+
  
 
 
