@@ -1,7 +1,8 @@
 ### [15 理解Java锁实现，Synchronized和ReentrantLock有什么区别？](https://github.com/lu666666/notebooks/blob/master/java/0/2/01.md)
 >
 ### [16 synchronized底层如何实现？什么是锁的升级、降级？](https://github.com/lu666666/notebooks/blob/master/java/0/2/02.md)
-- 一个线程连着调用start()两次会出现什么情况？谈谈线程的生命周期和状态转移
+>
+### [17 一个线程连着调用start()两次会出现什么情况？谈谈线程的生命周期和状态转移](https://github.com/lu666666/notebooks/blob/master/java/0/2/03.md) 
 >
 ### [17 什么情况下Java程序会产生死锁？如何排除？](https://github.com/lu666666/notebooks/blob/master/java/0/2/03.md)
 >
