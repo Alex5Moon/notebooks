@@ -4,9 +4,9 @@
 >
 ### [17 一个线程连着调用start()两次会出现什么情况？谈谈线程的生命周期和状态转移](https://github.com/lu666666/notebooks/blob/master/java/0/2/03.md) 
 >
-### [17 什么情况下Java程序会产生死锁？如何排除？](https://github.com/lu666666/notebooks/blob/master/java/0/2/03.md)
+### [18 什么情况下Java程序会产生死锁？如何排除？](https://github.com/lu666666/notebooks/blob/master/java/0/2/04.md)
 >
-### [18 Java并发包提供了哪些并发类？使用这些数据结构解决过什么并发问题？](https://github.com/lu666666/notebooks/blob/master/java/0/2/04.md)
+### [19 Java并发包提供了哪些并发类？使用这些数据结构解决过什么并发问题？](https://github.com/lu666666/notebooks/blob/master/java/0/2/05.md)
 >
 ### [19 AtomicInteger底层实现原理是什么？如何在自己的产品代码中应用CAS操作？](https://github.com/lu666666/notebooks/blob/master/java/0/2/05.md)
 >
