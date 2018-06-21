@@ -8,7 +8,9 @@
 >
 ### [19 Java并发包提供了哪些并发类？使用这些数据结构解决过什么并发问题？](https://github.com/lu666666/notebooks/blob/master/java/0/2/05.md)
 >
-### [19 AtomicInteger底层实现原理是什么？如何在自己的产品代码中应用CAS操作？](https://github.com/lu666666/notebooks/blob/master/java/0/2/05.md)
+### [20 并发包中的ConcurrentLinkedQueue和LinkedBlockingQueue有什么区别？](https://github.com/lu666666/notebooks/blob/master/java/0/2/06.md)
+>
+### [21 AtomicInteger底层实现原理是什么？如何在自己的产品代码中应用CAS操作？](https://github.com/lu666666/notebooks/blob/master/java/0/2/07.md)
 >
 ### [20 Java并发类库提供的线程池有哪几种？如何选择？](https://github.com/lu666666/notebooks/blob/master/java/0/2/06.md)
 >
