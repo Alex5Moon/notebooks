@@ -18,7 +18,7 @@
 >
 ### [24 哪些方法可以在运行时动态生成一个Java类？](https://github.com/lu666666/notebooks/blob/master/java/0/2/10.md)
 >
-### [25 谈谈JVM内存区域划分，如何监控和诊断JVM堆内和堆外内存使用？OOM常见排查思路有哪些？](https://github.com/lu666666/notebooks/blob/master/java/0/2/11.md)
+### [25 谈谈JVM内存区域划分，哪些区域可能发生OutOfMemoryError](https://github.com/lu666666/notebooks/blob/master/java/0/2/11.md)
 >
 ### [26 GC收集器有哪些？常见的调优方法有哪些？](https://github.com/lu666666/notebooks/blob/master/java/0/2/12.md)
 >
