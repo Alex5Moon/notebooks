@@ -20,7 +20,7 @@
 >
 ### [25 谈谈JVM内存区域划分，哪些区域可能发生OutOfMemoryError](https://github.com/lu666666/notebooks/blob/master/java/0/2/11.md)
 >
-### [26 GC收集器有哪些？常见的调优方法有哪些？](https://github.com/lu666666/notebooks/blob/master/java/0/2/12.md)
+### [26 如何监控和诊断JVM堆内和堆外内存使用?](https://github.com/lu666666/notebooks/blob/master/java/0/2/12.md)
 >
 ### [27 谈谈Java内存排序模型(JMM),原子性、可见性、有序性是什么？现在很多都在谈Happen-Beffore之类概念，那么如何用程序来证明比如volatile的行为是否正确？](https://github.com/lu666666/notebooks/blob/master/java/0/2/13.md)
 >
