@@ -9,7 +9,11 @@ import java.util.Arrays;
  * 走访数列的工作是重复地进行直到没有再需要交换，也就是说该数列已经排序完成。
  * 这个算法的名字由来是因为越小的元素会经由交换慢慢“浮”到数列的顶端。
  * @author Administrator
- *
+ * 
+ * 时间复杂度(平均)：n^2
+ * 时间复杂度(最坏):n^2
+ * 时间复杂度(最好):n
+ * 空间复杂度：             1
  */
 public class BubbleSort {
 	public static void main(String[] args) {
@@ -27,12 +31,13 @@ public class BubbleSort {
 	 */
 	public static void bubbleSort(int[] arr){
 		int length = arr.length;
+		int temp;
 		for (int i = 0; i < length-1 ; i++){
 			for (int j = 0; j < length-1-i; j++){
 				if (arr[j] > arr[j+1]) {  // 相邻两元素比较
-					arr[j]   = arr[j] ^ arr[j+1];
-					arr[j+1] = arr[j] ^ arr[j+1];
-					arr[j]   = arr[j] ^ arr[j+1];
+					temp = arr[j];
+					arr[j] = arr[j+1];
+					arr[j+1] = temp;
 				}
 			}
 		}
