@@ -267,7 +267,7 @@ public List<Student> queryStudentsBySql(int currPage, int pageSize) {
 #### 拦截器分页
 - 自定义拦截器实现了**拦截所有以ByPage结尾的查询语句**，并且利用获取到的分页相关参数统一在sql语句后面加上limit分页的相关语句，一劳永逸。不再需要在每个语句中单独去配置分页相关的参数了。。
 - 创建拦截器，拦截mybatis接口方法id以ByPage结束的语句
-- 。。。。。。
+- ......
 >
 #### RowBounds分页
 - 原理：通过RowBounds实现分页和通过数组方式分页原理差不多，都是一次获取所有符合条件的数据，然后在内存中对大数据进行操作，实现分页效果。只是数组分页需要我们自己去实现分页逻辑，这里更加简化而已。
@@ -277,6 +277,7 @@ public List<Student> queryStudentsBySql(int currPage, int pageSize) {
 - mybatis接口加入RowBounds参数
 - public List<UserBean> queryUsersByPage(String userName, RowBounds rowBounds);
 - **service**
+     
 ```
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.SUPPORTS)
@@ -301,6 +302,7 @@ public List<Student> queryStudentsBySql(int currPage, int pageSize) {
     </select> 
 ```
 - 第2种： 通过<resultMap>来映射字段名和实体类属性名的一一对应的关系 
+     
 ```
     <select id="getOrder" parameterType="int" resultMap="orderresultmap">
         select * from orders where order_id=#{id}
@@ -325,6 +327,7 @@ public List<Student> queryStudentsBySql(int currPage, int pageSize) {
     </select>        
 ```
 - 第2种：在sql语句中拼接通配符，会引起sql注入
+>
 ```
     string wildcardname = “smi”; 
     list<name> names = mapper.selectlike(wildcardname);
@@ -335,6 +338,7 @@ public List<Student> queryStudentsBySql(int currPage, int pageSize) {
 ```
 >
 ### 通常一个Xml映射文件，都会写一个Dao接口与之对应，请问，这个Dao接口的工作原理是什么？Dao接口里的方法，参数不同时，方法能重载吗？
+>
 - Dao接口，就是人们常说的Mapper接口，接口的全限名，就是映射文件中的namespace的值，接口的方法名，就是映射文件中MappedStatement的id值，接口方法内的参数，就是传递给sql的参数。Mapper接口是没有实现类的，当调用接口方法时，接口全限名+方法名拼接字符串作为key值，可唯一定位一个MappedStatement，举例：com.mybatis3.mappers.StudentDao.findStudentById，可以唯一找到namespace为com.mybatis3.mappers.StudentDao下面id = findStudentById的MappedStatement。在Mybatis中，每一个<select>、<insert>、<update>、<delete>标签，都会被解析为一个MappedStatement对象。
 >
 - Dao接口里的方法，是不能重载的，因为是全限名+方法名的保存和寻找策略。
@@ -352,7 +356,8 @@ public List<Student> queryStudentsBySql(int currPage, int pageSize) {
 - 有了列名与属性名的映射关系后，Mybatis通过反射创建对象，同时使用反射给对象的属性逐一赋值并返回，那些找不到映射关系的属性，是无法完成赋值的。
 >
 ### 如何执行批量插入?
-- 首先,创建一个简单的insert语句: 
+- 首先,创建一个简单的insert语句:   
+     
 ```
     <insert id=”insertname”> 
      insert into names (name) values (#{value}) 
@@ -502,6 +507,7 @@ Public UserselectUser(String name,String area);
 - 需要在SqlMapConfig.xml文件中，在<settings>标签中设置下延迟加载。
 - lazyLoadingEnabled、aggressiveLazyLoading
 >
+     
 ```
 <!-- 开启延迟加载 -->
     <settings>
@@ -635,8 +641,6 @@ public class BatisCache implements Cache {
 ### 简述Mybatis的Xml映射文件和Mybatis内部数据结构之间的映射关系？
 - Mybatis将所有Xml配置信息都封装到All-In-One重量级对象Configuration内部。在Xml映射文件中，<parameterMap>标签会被解析为ParameterMap对象，其每个子元素会被解析为ParameterMapping对象。<resultMap>标签会被解析为ResultMap对象，其每个子元素会被解析为ResultMapping对象。每一个<select>、<insert>、<update>、<delete>标签均会被解析为MappedStatement对象，标签内的sql会被解析为BoundSql对象。
 >
-
-
 
 
 
