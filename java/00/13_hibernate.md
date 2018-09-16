@@ -291,4 +291,50 @@ LockMode.UPGRADE ：利用数据库的 for update 子句加锁。
 >
 - SessionFactory 是Hibrenate单例数据存储和线程安全的，以至于可以多线程同时访问。一个SessionFactory 在启动的时候只能建立一次。SessionFactory应该包装各种单例以至于它能很简单的在一个应用代码中储存.
 >
+### Hibernate分页
+>
+- 第一种：hql分页（不推荐）需要手动关闭session连接
+- 第二种：DetachedCriteria （推荐使用）
+>
+### Hibernate实现分页查询的原理分析
+>
+- Hibernate的查询定义在net.sf.hibernate.loader.**Loader**这个类里面，仔细阅读该类代码，就可以把问题彻底搞清楚。
+- 如果相应的数据库定义了限定查询记录的sql语句，那么直接使用特定数据库的sql语句。
+- 然后来看net.sf.hibernate.dialect.MySQLDialect:
+```
+public boolean supportsLimit(); {  
+  return true;  
+}  
+public String getLimitString(String sql); {  
+  StringBuffer pagingSelect = new StringBuffer(100);;  
+  pagingSelect.append(sql);;  
+  pagingSelect.append(" limit ?, ?");;  
+  return pagingSelect.toString();;  
+}  
+```
+- 这是MySQL的专用分页语句，再来看net.sf.hibernate.dialect.Oracle9Dialect:
+```
+public boolean supportsLimit(); {  
+  return true;  
+}  
+
+public String getLimitString(String sql); {  
+  StringBuffer pagingSelect = new StringBuffer(100);;  
+  pagingSelect.append("select * from ( select row_.*, rownum rownum_ from ( ");;  
+  pagingSelect.append(sql);;  
+  pagingSelect.append(" ); row_ where rownum <= ?); where rownum_ > ?");;  
+  return pagingSelect.toString();;  
+} 
+```
+- Oracle采用嵌套3层的查询语句结合rownum来实现分页，这在Oracle上是最快的方式，如果只是一层或者两层的查询语句的rownum不能支持order by。
+>
+
+
+
+
+
+
+
+
+
 
