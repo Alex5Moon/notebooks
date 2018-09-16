@@ -255,6 +255,40 @@ LockMode.UPGRADE ：利用数据库的 for update 子句加锁。
 - 第一种：左外连接，只需一句SQL语句查询
 - 第二种：否则用懒加载@LazyToOne(LazyToOneOption.PROXY)
 >
-
-
+### update和saveOrUpdate的区别？
+- update()和saveOrUpdate()是用来对跨Session的PO进行状态管理的。 
+- update()方法操作的对象必须是持久化了的对象。也就是说，如果此对象在数据库中不存在的话，就不能使用update()方法。 
+- saveOrUpdate()方法操作的对象既可以使持久化了的，也可以使没有持久化的对象。如果是持久化了的对象调用saveOrUpdate()则会 更新数据库中的对象；如果是未持久化的对象使用此方法,则save到数据库中。
+>
+### 比较hibernate的三种检索策略优缺点
+>
+- 1立即检索； 
+- 优点： 对应用程序完全透明，不管对象处于持久化状态，还是游离状态，应用程序都可以方便的从一个对象导航到与它关联的对象； 
+- 缺点： 1.select语句太多；2.可能会加载应用程序不需要访问的对象白白浪费许多内存空间； 
+- 2延迟检索： 
+- 优点： 由应用程序决定需要加载哪些对象，可以避免可执行多余的select语句，以及避免加载应用程序不需要访问的对象。因此能提高检索性能，并且能节省内存空间； 
+- 缺点： 应用程序如果希望访问游离状态代理类实例，必须保证他在持久化状态时已经被初始化； 
+- 3 迫切左外连接检索 
+- 优点： 1对应用程序完全透明，不管对象处于持久化状态，还是游离状态，应用程序都可以方便地冲一个对象导航到与它关联的对象。2使用了外连接，select语句数目少； 
+- 缺点： 1 可能会加载应用程序不需要访问的对象，白白浪费许多内存空间；2复杂的数据库表连接也会影响检索性能；
+>
+### hibernate里面的sorted collection 和ordered collection有什么区别
+>
+- sorted collection是在内存中通过Java比较器进行排序的 
+- ordered collection是在数据库中通过order by进行排序的
+>
+### Hibernate有哪几种查询数据的方式
+>
+- 3种：hql、条件查询QBC(QueryBy Criteria)、原生sql （通过createSQLQuery建立）
+>
+### 谈谈Hibernate中inverse的作用
+>
+- nverse属性默认是false,就是说关系的两端都来维护关系。 
+- 比如Student和Teacher是多对多关系，用一个中间表TeacherStudent维护。
+- 如果Student这边inverse=”true”, 那么关系由另一端Teacher维护，就是说当插入Student时，不会操作TeacherStudent表（中间表）。只有Teacher插入或删除时才会触发对中间表的操作。所以两边都inverse=”true”是不对的，会导致任何操作都不触发对中间表的影响；当两边都inverse=”false”或默认时，会导致在中间表中插入两次关系。
+>
+### 什么是SessionFactory,她是线程安全么？
+>
+- SessionFactory 是Hibrenate单例数据存储和线程安全的，以至于可以多线程同时访问。一个SessionFactory 在启动的时候只能建立一次。SessionFactory应该包装各种单例以至于它能很简单的在一个应用代码中储存.
+>
 
