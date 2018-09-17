@@ -48,7 +48,7 @@ static final int MAXIMUM_CAPACITY = 1 << 30;         // 最大容量      2的30
 static final float DEFAULT_LOAD_FACTOR = 0.75f;      // 默认负载因子   0.75
 static final int TREEIFY_THRESHOLD = 8;              // 一个桶中的元素个数超过 TREEIFY_THRESHOLD，就使用红黑树来替换链表
 static final int UNTREEIFY_THRESHOLD = 6;            // 当扩容时，桶中元素个数小于这个值，就会把树形的桶元素 还原（切分）为链表结构
-static final int MIN_TREEIFY_CAPACITY = 64;          // 如果当前哈希表为空，或者哈希表中元素的个数小于 进行树形化的阈值(默认为 64)，就去新建/扩容
+static final int MIN_TREEIFY_CAPACITY = 64;          // 哈希表中元素的个数小于 进行树形化的阈值(默认为 64)，就去扩容
 ```
 >
 #### 哈希再哈希
@@ -79,7 +79,7 @@ static final int MIN_TREEIFY_CAPACITY = 64;          // 如果当前哈希表为
 >
 - key，value在内部是以node的形式存放的。
 - 如果hash表是空的，先进行扩容。
-- 将 tab[i = (n - 1) & hash] 赋值给结点 p ，如果 p 是空的，那么这个键对值放在这个地方，存入newNode 。i = (n - 1) & hash  这是具体键值对在哈希表中的位置。
+- 将 tab\[i = (n - 1) & hash] 赋值给结点 p ，如果 p 是空的，那么这个键对值放在这个地方，存入newNode 。i = (n - 1) & hash  这是具体键值对在哈希表中的位置。
 - 否则，代表改位置已经存放结点。比较 p 结点的hash值，key值 是否与要存放的值相等，如果相等，将 结点p 赋值给结点 e，并将结点 e 的value 替换为要存储的value。
 - 如果hash值相同，key不同，但是 p 的类型是树结点 TreeNode，则调用 TreeNode.putTreeVale插入。
 - 其他，采用链表插入，尾插入，当前结点的next为空，直接插入。插入完成后，如果该链表的结点数超过8，则树化treebin();
